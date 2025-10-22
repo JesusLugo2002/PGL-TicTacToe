@@ -1,24 +1,25 @@
 import Board from "@/components/Board";
-import { useState } from "react";
 
-export default function BoardContainer() {
-    const [xIsNext, setXIsNext] = useState(true);
-    const [squares, setSquares] = useState<Array<string>>(Array(9).fill(null));
+type Props = {
+    xIsNext: boolean,
+    squares: string[],
+    onPlay: (nextSquares: string[]) => void,
+}
 
+export default function BoardContainer({xIsNext, squares, onPlay}: Props) {
     const getNextPlayer = () => {
         return xIsNext ? "X" : "O";
     }
-        
+
     const handleClick = (index: number) => {
         if (squares[index] || getWinner()) {
             return;
         }
         const nextSquares = squares.slice();
         nextSquares[index] = getNextPlayer();
-        setSquares(nextSquares);
-        setXIsNext(!xIsNext);
+        onPlay(nextSquares);
     }
-
+    
     const getWinner = () => {
         const lines = [
             [0, 1, 2],
