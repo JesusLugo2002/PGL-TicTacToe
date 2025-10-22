@@ -1,29 +1,37 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Square from "./Square";
 
 type Props = {
     squares: Array<string>
     onHandleClick: (index: number) => void;
+    winner: string|null
+    nextPlayer: string
 }
 
-export default function Board({squares, onHandleClick}: Props) {
+export default function Board({squares, onHandleClick, winner, nextPlayer}: Props) {
+    const grid = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8]
+    ]
+    
+    const getStatus = () => {
+        return winner ? `Winner: ${winner}` : `Next player: ${nextPlayer}`
+    }
+
     return (
         <View style={styles.container}>
-            <View style={styles.row}>
-                <Square value={squares[0]} handleClick={() => onHandleClick(0)}/>
-                <Square value={squares[1]} handleClick={() => onHandleClick(1)}/>
-                <Square value={squares[2]} handleClick={() => onHandleClick(2)}/>
+            <View>
+                <Text style={styles.status}>{getStatus()}</Text>
             </View>
-            <View style={styles.row}>
-                <Square value={squares[3]} handleClick={() => onHandleClick(3)}/>
-                <Square value={squares[4]} handleClick={() => onHandleClick(4)}/>
-                <Square value={squares[5]} handleClick={() => onHandleClick(5)}/>
-            </View>
-            <View style={styles.row}>
-                <Square value={squares[6]} handleClick={() => onHandleClick(6)}/>
-                <Square value={squares[7]} handleClick={() => onHandleClick(7)}/>
-                <Square value={squares[8]} handleClick={() => onHandleClick(8)}/>
-            </View>
+
+            {grid.map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.row}>
+                    {row.map((squareIndex) => (
+                        <Square value={squares[squareIndex]} handleClick={() => onHandleClick(squareIndex)}/>
+                    ))}
+                </View>
+            ))}
         </View>
     )
 }
@@ -39,5 +47,9 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         gap: 10,
         margin: 10
+    },
+    status: {
+        textAlign: "center",
+        fontSize: 24
     }
 })
