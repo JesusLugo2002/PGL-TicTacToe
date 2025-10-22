@@ -1,11 +1,19 @@
-import Square from "@/components/Square";
-import { Text, View } from "react-native";
+import BoardContainer from "@/containers/BoardContainer";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   return (
-    <View>
-      <Text>Hello world!</Text>
-      <Square value={"A"} onSquareClick={() => alert("A")}></Square>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <BoardContainer/>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  }
+})
