@@ -10,9 +10,21 @@ type Props = {
 
 export default function Board({squares, onHandleClick, winner, nextPlayer}: Props) {
     const grid = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8]
+        [
+            {index: 0, borderStyle: { borderTopColor: "transparent", borderLeftColor: "transparent"}},
+            {index: 1, borderStyle: { borderTopColor: "transparent" }},
+            {index: 2, borderStyle: { borderTopColor: "transparent", borderRightColor: "transparent"}}
+        ],
+        [
+            {index: 3, borderStyle: { borderLeftColor: "transparent"}},
+            {index: 4, borderStyle: {}},
+            {index: 5, borderStyle: { borderRightColor: "transparent"}},
+        ],
+        [
+            {index: 6, borderStyle: { borderBottomColor: "transparent", borderLeftColor: "transparent"}},
+            {index: 7, borderStyle: { borderBottomColor: "transparent" }},
+            {index: 8, borderStyle: { borderBottomColor: "transparent", borderRightColor: "transparent"}},
+        ]
     ]
     
     const getStatus = () => {
@@ -20,15 +32,15 @@ export default function Board({squares, onHandleClick, winner, nextPlayer}: Prop
     }
 
     return (
-        <View style={styles.container}>
+        <View>
             <View>
                 <Text style={styles.status}>{getStatus()}</Text>
             </View>
 
             {grid.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.row}>
-                    {row.map((squareIndex) => (
-                        <Square value={squares[squareIndex]} handleClick={() => onHandleClick(squareIndex)}/>
+                    {row.map((square) => (
+                        <Square value={squares[square.index]} handleClick={() => onHandleClick(square.index)} borderStyle={square.borderStyle}/>
                     ))}
                 </View>
             ))}
@@ -37,19 +49,12 @@ export default function Board({squares, onHandleClick, winner, nextPlayer}: Prop
 }
 
 const styles = StyleSheet.create({
-    container: {
-        borderBlockColor: "#080606ff",
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 10
-    },
     row: {
         flexDirection: "row",
-        gap: 10,
-        margin: 10
     },
     status: {
         textAlign: "center",
-        fontSize: 24
+        fontSize: 24,
+        marginBottom: 20
     }
 })

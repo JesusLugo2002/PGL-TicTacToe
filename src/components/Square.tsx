@@ -2,14 +2,13 @@ import { Pressable, StyleSheet } from "react-native";
 
 type Props = {
     value: String
-    handleClick: () => void;
+    handleClick: () => void
+    borderStyle: Object
 }
 
-export default function Square({
-    value,
-    handleClick
-}: Props) {
-    return <Pressable style={styles.button} onPress={handleClick}>{value}</Pressable>
+export default function Square({value, handleClick, borderStyle}: Props) {
+    const borderStyleSheet = StyleSheet.create({borders: borderStyle})
+    return <Pressable style={[styles.button, borderStyleSheet.borders]} onPress={handleClick}>{value}</Pressable>
 }
 
 const styles = StyleSheet.create({
@@ -18,7 +17,6 @@ const styles = StyleSheet.create({
         height: 64,
         borderBlockColor: "rgba(0, 0, 0, 1)",
         borderWidth: 1,
-        borderRadius: 10,
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
