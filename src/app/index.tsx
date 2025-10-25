@@ -1,19 +1,32 @@
-import GameContainer from "@/containers/GameContainer";
-import { StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import GameContainer from '@/containers/GameContainer';
+import { useFonts } from 'expo-font';
+import { ImageBackground, StyleSheet } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
+  const [loaded, error] = useFonts({
+    'Handodle': require('../assets/fonts/Handodle.ttf')
+  });
   return (
-    <SafeAreaView style={styles.container}>
-      <GameContainer/>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <ImageBackground source={require("../assets/images/background.jpg")} resizeMode='repeat' style={styles.background}>
+          <GameContainer/>
+        </ImageBackground>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
+    width: "100%",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  container: {
+    flex: 1,
   }
 })

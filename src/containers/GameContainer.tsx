@@ -1,5 +1,6 @@
+import History from "@/components/History";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import BoardContainer from "./BoardContainer";
 
 export default function GameContainer() {
@@ -20,22 +21,10 @@ export default function GameContainer() {
         setXIsNext(nextMove % 2 === 0);
     }
 
-    const moves = history.map((_, moveIndex) => {
-        let description = moveIndex > 0 ? "Go to move #" + moveIndex : "Go to game start";
-        return (
-            <Pressable style={styles.historyButton} key={moveIndex} onPress={() => jumpTo(moveIndex)}>
-                <Text style={styles.historyLabel}>{description}</Text>
-            </Pressable>
-        )
-    })
-
     return (
         <View style={styles.container}>
             <BoardContainer xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
-            <View>
-                <Text style={styles.historyTitle}>History</Text>
-                {moves}
-            </View>
+            <History history={history} jumpTo={jumpTo}/>
         </View>
     );
 }
@@ -47,21 +36,4 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         gap: 40,
     },
-    historyTitle: {
-        fontSize: 24,
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    historyButton: {
-        backgroundColor: "#ffcfa8ff",
-        margin: 10,
-        padding: 10,
-        paddingHorizontal: 20,
-        borderRadius: 10
-    },
-    historyLabel: {
-        fontSize: 16,
-        borderRadius: 10,
-        textAlign: "center"
-    }
 })
