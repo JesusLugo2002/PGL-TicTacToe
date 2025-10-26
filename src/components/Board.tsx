@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View, ViewStyle } from "react-native";
+import { generateEmptyGrid } from "@/utils/utils";
+import { StyleSheet, Text, View } from "react-native";
 import Square from "./Square";
 
 type Props = {
@@ -6,10 +7,23 @@ type Props = {
     onHandleClick: (index: number) => void;
     winner: string|null
     nextPlayer: string
+    boardCols: number
 }
 
-export default function Board({squares, onHandleClick, winner, nextPlayer}: Props) {
-    function generateBorderStyle(top: boolean, right: boolean, bottom: boolean, left: boolean): ViewStyle {
+type BorderStyle = {
+    borderTopColor: string
+    borderRightColor: string 
+    borderBottomColor: string
+    borderLeftColor: string
+}
+
+type SquareObject = {
+    index: number
+    borderStyle: BorderStyle
+}
+
+export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols}: Props) {
+    function generateBorderStyle(top: boolean, right: boolean, bottom: boolean, left: boolean): BorderStyle {
         return {
             borderTopColor: top ? "#fff" : "transparent",
             borderRightColor: right ? "#fff" : "transparent",
@@ -18,24 +32,53 @@ export default function Board({squares, onHandleClick, winner, nextPlayer}: Prop
         }
     }
 
-    const grid = [
-        [
-            {index: 0, borderStyle: generateBorderStyle(false, true, true, false)},
-            {index: 1, borderStyle: generateBorderStyle(false, true, true, true)},
-            {index: 2, borderStyle: generateBorderStyle(false, false, true, true)}
-        ],
-        [
-            {index: 3, borderStyle: generateBorderStyle(true, true, true, false)},
-            {index: 4, borderStyle: generateBorderStyle(true, true, true, true)},
-            {index: 5, borderStyle: generateBorderStyle(true, false, true, true)},
-        ],
-        [
-            {index: 6, borderStyle: generateBorderStyle(true, true, false, false)},
-            {index: 7, borderStyle: generateBorderStyle(true, true, false, true)},
-            {index: 8, borderStyle: generateBorderStyle(true, false, false, true)},
-        ]
-    ]
-    
+    const topLeftSquare: BorderStyle = generateBorderStyle(false, true, true, false);
+    const topSquare: BorderStyle = generateBorderStyle(false, true, true, true);
+    const topRightSquare: BorderStyle = generateBorderStyle(false, false, true, true);
+    const leftSquare: BorderStyle = generateBorderStyle(true, true, true, false);
+    const middleSquare: BorderStyle = generateBorderStyle(true, true, true, true);
+    const rightSquare: BorderStyle = generateBorderStyle(true, false, true, true);
+    const bottomLeftSquare: BorderStyle = generateBorderStyle(true, true, false, false);
+    const bottomSquare: BorderStyle = generateBorderStyle(true, true, false, true);
+    const bottomRightSquare: BorderStyle = generateBorderStyle(true, false, false, true);
+
+    function getBordersByPosition(row: number, col: number, boardCols: number) {
+        const lastIndex = boardCols - 1;
+        if (row == 0) {
+            if (col == 0) {
+                return topLeftSquare;
+            }
+            if (col == lastIndex) {
+                return topRightSquare;
+            }
+            return topSquare;
+        }
+        if (row == lastIndex) {
+            if (col == 0) {
+                return bottomLeftSquare;
+            }
+            if (col == lastIndex) {
+                return bottomRightSquare;
+            }
+            return bottomSquare;
+        }
+        if (col == 0) {
+            return leftSquare;
+        }
+        if (col == lastIndex) {
+            return rightSquare;
+        }
+        return middleSquare
+    }
+
+    const grid = generateEmptyGrid(boardCols);
+    grid.forEach((row: Array<any>, rowIndex) => {
+        grid[rowIndex] = row.map((col, colIndex) => {
+            return {index: colIndex + boardCols * rowIndex, borderStyle: getBordersByPosition(rowIndex, colIndex, boardCols)}
+        })
+    });
+
+
     const getStatus = () => {
         return winner ? `Player ${winner} wins` : ` Is ${nextPlayer} turn...`
     }
@@ -47,7 +90,7 @@ export default function Board({squares, onHandleClick, winner, nextPlayer}: Prop
             </View>
             {grid.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.row}>
-                    {row.map((square) => (
+                    {row.map((square: SquareObject) => (
                         <Square value={squares[square.index]} handleClick={() => onHandleClick(square.index)} borderStyle={square.borderStyle}/>
                     ))}
                 </View>
@@ -64,6 +107,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
     },
     title: {
+        textAlign: "center",
         fontFamily: "Handodle",
         fontSize: 64,
         letterSpacing: 2,

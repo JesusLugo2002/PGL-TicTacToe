@@ -1,12 +1,16 @@
 import Board from "@/components/Board";
+import { generateEmptyGrid } from "@/utils/utils";
 
 type Props = {
     xIsNext: boolean,
     squares: string[],
     onPlay: (nextSquares: string[]) => void,
+    boardCols: number
 }
 
-export default function BoardContainer({xIsNext, squares, onPlay}: Props) {
+export default function BoardContainer({xIsNext, squares, onPlay, boardCols}: Props) {
+    const lines = [...getHorizontalLines(), ...getVerticalLines(), ...getDiagonalLines()];
+
     const getNextPlayer = () => {
         return xIsNext ? "X" : "O";
     }
@@ -19,28 +23,58 @@ export default function BoardContainer({xIsNext, squares, onPlay}: Props) {
         nextSquares[index] = getNextPlayer();
         onPlay(nextSquares);
     }
-    
+
+    function getHorizontalLines() {
+        let result = generateEmptyGrid(boardCols);
+        result.forEach((row, rowIndex) => {
+            result[rowIndex] = row.map((_, colIndex) => {
+                return colIndex + rowIndex * boardCols;
+            })
+        })
+        return result;
+    }
+
+    function getVerticalLines() {
+        let result = generateEmptyGrid(boardCols);
+        result.forEach((row, rowIndex) => {
+            result[rowIndex] = row.map((_, colIndex) => {
+                return rowIndex + colIndex * boardCols;
+            })
+        })
+        return result;
+    }
+
+    function getDiagonalLines() {
+        let result = Array(2).fill(Array(boardCols).fill(null));
+        result.forEach((diagonal, diagonalIndex) => {
+            result[diagonalIndex] = diagonal.map((_: any, rowIndex: number) => {
+                if (diagonalIndex == 0) {
+                    return boardCols * rowIndex + rowIndex;
+                } 
+                return (rowIndex + 1) * (boardCols - 1) 
+            })
+        })
+        return result;
+    }
+
     const getWinner = () => {
-        const lines = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],  
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ];
         for (let i = 0; i < lines.length; i++) {
-            const [a, b, c] = lines[i];
-            if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                return squares[a];
+            const currentLine = lines[i];
+            const firstLineIndex = currentLine[0];
+            const firstSym = squares[firstLineIndex];
+            if (!firstSym) {
+                continue;
+            }
+            const matches = currentLine.map((index: number) => {
+                return squares[index] === firstSym;
+            })
+            if (matches.every((match: boolean) => match)) {
+                return firstSym;
             }
         }
         return null;
     }
-
     return (
-        <Board squares={squares} onHandleClick={handleClick} winner={getWinner()} nextPlayer={getNextPlayer()}/>
+        <Board squares={squares} onHandleClick={handleClick} winner={getWinner()} nextPlayer={getNextPlayer()} boardCols={boardCols}/>
     )
 }
