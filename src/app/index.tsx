@@ -7,10 +7,11 @@ export default function Index() {
   const [loaded, error] = useFonts({
     'Handodle': require('../assets/fonts/Handodle.ttf')
   });
+  
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <ImageBackground source={require("../assets/images/background.jpg")} resizeMode='repeat' style={styles.background}>
+        <ImageBackground source={require("../assets/images/background.jpg")} style={styles.background} resizeMode='repeat'>
           <GameContainer/>
         </ImageBackground>
       </SafeAreaView>
@@ -21,11 +22,10 @@ export default function Index() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
     alignItems: "center",
-  },
+    width: "100%",
+    height: "100%"
+  },  
   container: {
     flex: 1,
   }

@@ -27,8 +27,8 @@ export default function Square({value, handleClick, borderStyle}: Props) {
 
 const styles = StyleSheet.create({
     button: {
-        width: 64,
-        height: 64,
+        width: 56,
+        height: 56,
         borderBlockColor: "#fff",
         borderWidth: 1,
         flex: 1,

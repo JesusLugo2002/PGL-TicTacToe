@@ -1,4 +1,3 @@
-import History from "@/components/History";
 import Menu from "@/components/Menu";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -12,26 +11,45 @@ export default function GameContainer() {
     const [currentMove, setCurrentMove] = useState(0);
     let currentSquares = history[currentMove];
 
-    const resetGame = () => {
+    /**
+     * Reinicia el juego a su estado inicial
+     * @returns {void}
+     */
+    function resetGame(): void {
         setInGame(false);
         setHistory([Array(boardCols * boardCols).fill(null)]);
         setCurrentMove(0);
         currentSquares = history[currentMove];
     }
 
-    const handlePlay = (nextSquares: Array<string>) => {
+    /**
+     * Gestiona el click sobre un cuadro, actualizando el historial y configurando el siguiente movimiento
+     * @param {Array<string>} nextSquares Grid resultante de haber dibujado un cuadro 
+     * @returns {void}
+     */
+    function handlePlay(nextSquares: Array<string>): void {
         const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
         setHistory(nextHistory);
         setCurrentMove(nextHistory.length - 1);
         setXIsNext(!xIsNext);
-    } 
+    }
 
-    const handleStartGame = (boardCols: number) => {
+    /**
+     * Gestiona el inicio de una partida al seleccionar dificultad en el menu
+     * @param {number} boardCols Numero de filas y columnas del grid
+     * @returns {void}
+     */
+    function handleStartGame(boardCols: number): void {
         setBoardCols(boardCols);
         setInGame(true);
     }
 
-    function jumpTo(nextMove: number) {
+    /**
+     * Configura como movimiento actual el movimiento seleccionado del historial
+     * @param {number} nextMove Indice del movimiento
+     * @returns {void}
+     */
+    function jumpTo(nextMove: number): void {
         setCurrentMove(nextMove);
         setXIsNext(nextMove % 2 === 0);
     }
@@ -39,7 +57,7 @@ export default function GameContainer() {
     return inGame ? (
         <View style={styles.container}>
             <BoardContainer xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} onReset={resetGame} boardCols={boardCols}/>
-            <History history={history} jumpTo={jumpTo}/>
+            {/* <History history={history} jumpTo={jumpTo}/> */}
         </View>
     ) : (
         <Menu startGame={handleStartGame}/> 
@@ -51,7 +69,5 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        flexDirection: "row",
-        gap: 40,
     },
 })

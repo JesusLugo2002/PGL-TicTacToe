@@ -1,3 +1,4 @@
+import { globalStyles } from "@/styles/GlobalStyles";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
 
@@ -7,9 +8,9 @@ type Props = {
 
 export default function Menu({startGame}: Props) {
     return (
-        <View>
-            <Text style={styles.title}>TicTacToe</Text>
-            <Text style={styles.subtitle}>Start game</Text>
+        <View style={styles.container}>
+            <Text style={[globalStyles.text, styles.title]}>TicTacToe</Text>
+            <Text style={[globalStyles.text, styles.subtitle]}>Start game</Text>
             <View style={styles.difficultyOptions}>
                 <Button description="III Rows" onPress={() => startGame(3)}/>
                 <Button description="V Rows" onPress={() => startGame(5)}/>
@@ -20,20 +21,19 @@ export default function Menu({startGame}: Props) {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: "center"
+    },
     title: {
-        fontFamily: "Handodle",
-        color: "#fff",
         fontSize: 64,
         letterSpacing: 2,
         textAlign: "center"
     },
     subtitle: {
-        fontFamily: "Handodle",
-        color: "#fff",
         fontSize: 48,
         textAlign: "center",
         marginTop: 20,
-        textDecorationLine: "underline"
     },
     difficultyOptions: {
         margin: 20,

@@ -1,3 +1,4 @@
+import { globalStyles } from "@/styles/GlobalStyles";
 import { generateEmptyGrid } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
@@ -86,21 +87,19 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
     }
 
     return (
-        <View>
-            <View>
-                <Text style={styles.title}>TicTacToe</Text>
+        <View style={styles.container}>
+            <Text style={[globalStyles.text, styles.title]}>TicTacToe</Text>
+            <View style={styles.board}>
+                {grid.map((row, rowIndex) => (
+                    <View key={rowIndex} style={styles.row}>
+                        {row.map((square: SquareObject) => (
+                            <Square value={squares[square.index]} handleClick={() => onHandleClick(square.index)} borderStyle={square.borderStyle}/>
+                        ))}
+                    </View>
+                ))}
             </View>
-            {grid.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.row}>
-                    {row.map((square: SquareObject) => (
-                        <Square value={squares[square.index]} handleClick={() => onHandleClick(square.index)} borderStyle={square.borderStyle}/>
-                    ))}
-                </View>
-            ))}
-            <View>
-                <Text style={styles.status}>{getStatus()}</Text>
-            </View>
-            <View style={styles.resetButtonContainer}>
+            <View style={styles.bottomSection}>  
+                <Text style={[globalStyles.text, styles.status]}>{getStatus()}</Text>
                 <Button description="Leave game" onPress={() => onReset()} textAlign={{textAlign: "center"}}/>
             </View>
         </View>
@@ -108,26 +107,26 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: "center",
+    },
+    board: {
+        flexGrow: 1,
+        justifyContent: "center"
+    },
     row: {
         flexDirection: "row",
     },
     title: {
-        textAlign: "center",
-        fontFamily: "Handodle",
+        top: "10%",
         fontSize: 64,
         letterSpacing: 2,
-        marginBottom: 20,
-        color: "#fff"
+    },
+    bottomSection: {
+        bottom: "10%"  
     },
     status: {
-        fontFamily: "Handodle",
-        textAlign: "center",
         fontSize: 32,
-        marginTop: 20,  
-        color: "#fff"
     },
-    resetButtonContainer: {
-        marginTop: 20,
-        textAlign: "center"
-    }
 })
