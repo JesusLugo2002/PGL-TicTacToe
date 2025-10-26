@@ -1,18 +1,19 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet, Text, TextStyle } from "react-native";
 
 type Props = {
     index?: number;
     description: string;
     onPress: () => void;
+    textAlign: TextStyle
 }
 
-export default function Button({index, description, onPress}: Props) {
+export default function Button({index, description, onPress, textAlign}: Props) {
     const [hovered, setHovered] = useState(false);
 
     return (
-        <Pressable style={styles.button} key={index} onPress={onPress} onHoverIn={() => setHovered(true)} onHoverOut={() => setHovered(false)}>
-            <Text style={[styles.label, hovered && styles.hoveredLabel]}>{description}</Text>
+        <Pressable style={[styles.button]} key={index} onPress={onPress} onHoverIn={() => setHovered(true)} onHoverOut={() => setHovered(false)}>
+            <Text style={[styles.label, textAlign ?? {textAlign: "right"}, hovered && styles.hoveredLabel]}>{description}</Text>
         </Pressable>
     )   
 }
@@ -25,7 +26,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         letterSpacing: 0.5,
         borderRadius: 10,
-        textAlign: "right",
         fontFamily: "Handodle",
         color: "#fff"
     },

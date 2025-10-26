@@ -1,5 +1,6 @@
 import { generateEmptyGrid } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
+import Button from "./Button";
 import Square from "./Square";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
     winner: string|null
     nextPlayer: string
     boardCols: number
+    onReset: () => void;
 }
 
 type BorderStyle = {
@@ -22,7 +24,7 @@ type SquareObject = {
     borderStyle: BorderStyle
 }
 
-export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols}: Props) {
+export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, onReset}: Props) {
     function generateBorderStyle(top: boolean, right: boolean, bottom: boolean, left: boolean): BorderStyle {
         return {
             borderTopColor: top ? "#fff" : "transparent",
@@ -98,6 +100,9 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
             <View>
                 <Text style={styles.status}>{getStatus()}</Text>
             </View>
+            <View style={styles.resetButtonContainer}>
+                <Button description="Leave game" onPress={() => onReset()} textAlign={{textAlign: "center"}}/>
+            </View>
         </View>
     )
 }
@@ -120,5 +125,9 @@ const styles = StyleSheet.create({
         fontSize: 32,
         marginTop: 20,  
         color: "#fff"
+    },
+    resetButtonContainer: {
+        marginTop: 20,
+        textAlign: "center"
     }
 })

@@ -5,10 +5,11 @@ type Props = {
     xIsNext: boolean,
     squares: string[],
     onPlay: (nextSquares: string[]) => void,
+    onReset: () => void;
     boardCols: number
 }
 
-export default function BoardContainer({xIsNext, squares, onPlay, boardCols}: Props) {
+export default function BoardContainer({xIsNext, squares, onPlay, onReset, boardCols}: Props) {
     const lines = [...getHorizontalLines(), ...getVerticalLines(), ...getDiagonalLines()];
 
     const getNextPlayer = () => {
@@ -75,6 +76,6 @@ export default function BoardContainer({xIsNext, squares, onPlay, boardCols}: Pr
         return null;
     }
     return (
-        <Board squares={squares} onHandleClick={handleClick} winner={getWinner()} nextPlayer={getNextPlayer()} boardCols={boardCols}/>
+        <Board squares={squares} onHandleClick={handleClick} winner={getWinner()} nextPlayer={getNextPlayer()} boardCols={boardCols} onReset={onReset}/>
     )
 }
