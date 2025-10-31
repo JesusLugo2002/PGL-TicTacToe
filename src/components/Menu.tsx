@@ -1,3 +1,4 @@
+import { intInRoman } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
 
@@ -6,14 +7,16 @@ type Props = {
 }
 
 export default function Menu({startGame}: Props) {
+    const AVAILABLE_ROWS_OPTIONS = [3, 4, 5, 6, 7];
+
     return (
         <View>
             <Text style={styles.title}>TicTacToe</Text>
             <Text style={styles.subtitle}>Start game</Text>
-            <View style={styles.difficultyOptions}>
-                <Button description="III Rows" onPress={() => startGame(3)}/>
-                <Button description="V Rows" onPress={() => startGame(5)}/>
-                <Button description="VII Rows" onPress={() => startGame(7)}/>
+            <View style={styles.rowsOptions}>
+                {AVAILABLE_ROWS_OPTIONS.map((rows: number) => (
+                    <Button description={intInRoman(rows) + " rows"} onPress={() => startGame(rows)}/>
+                ))}
             </View>
         </View>
     )
@@ -35,7 +38,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         textDecorationLine: "underline"
     },
-    difficultyOptions: {
+    rowsOptions: {
         margin: 20,
         flexDirection: "row",
         gap: 50

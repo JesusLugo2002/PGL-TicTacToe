@@ -5,7 +5,7 @@ type Props = {
     index?: number;
     description: string;
     onPress: () => void;
-    textAlign: TextStyle
+    textAlign?: TextStyle
 }
 
 export default function Button({index, description, onPress, textAlign}: Props) {

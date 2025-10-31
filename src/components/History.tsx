@@ -1,3 +1,4 @@
+import { intInRoman } from "@/utils/utils";
 import { useRef } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
@@ -9,26 +10,6 @@ type Props = {
 
 export default function History({history, jumpTo}: Props) {
     const scrollViewRef = useRef(null);
-
-    function intInRoman(num: number): string {
-        const values = [
-            1000, 900, 500, 400,
-            100, 90, 50, 40,
-            10, 9, 5, 4, 1
-        ];
-        const symbols = [
-            "M", "CM", "D", "CD",
-            "C", "XC", "L", "XL",
-            "X", "IX", "V", "IV", "I"
-        ]
-        let result = ""
-        for (let index = 0; index < values.length; index++) {
-            const count = Math.floor(num / values[index]);
-            result += symbols[index].repeat(count);
-            num -= values[index] * count;
-        }
-        return result;
-    }
 
     const moves = history.map((_, index) => {
         let description = index > 0 ? "Go to move " + intInRoman(index) : "Go to game start";
