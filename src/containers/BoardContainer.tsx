@@ -9,6 +9,11 @@ type Props = {
     boardCols: number
 }
 
+export type Winner = {
+    symbol: String
+    line: Array<number>
+}
+
 export default function BoardContainer({xIsNext, squares, onPlay, onReset, boardCols}: Props) {
     const lines = [...getHorizontalLines(), ...getVerticalLines(), ...getDiagonalLines()];
 
@@ -58,7 +63,7 @@ export default function BoardContainer({xIsNext, squares, onPlay, onReset, board
         return result;
     }
 
-    const getWinner = () => {
+    function getWinner(): Winner|null {
         for (let i = 0; i < lines.length; i++) {
             const currentLine = lines[i];
             const firstLineIndex = currentLine[0];
@@ -70,11 +75,12 @@ export default function BoardContainer({xIsNext, squares, onPlay, onReset, board
                 return squares[index] === firstSym;
             })
             if (matches.every((match: boolean) => match)) {
-                return firstSym;
+                return {symbol: firstSym, line: currentLine};
             }
         }
         return null;
     }
+
     return (
         <Board squares={squares} onHandleClick={handleClick} winner={getWinner()} nextPlayer={getNextPlayer()} boardCols={boardCols} onReset={onReset}/>
     )

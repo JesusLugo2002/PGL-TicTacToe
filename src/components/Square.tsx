@@ -4,9 +4,10 @@ type Props = {
     value: String
     handleClick: () => void
     borderStyle: ViewStyle
+    isWinner?: boolean
 }
 
-export default function Square({value, handleClick, borderStyle}: Props) {
+export default function Square({value, handleClick, borderStyle, isWinner}: Props) {
     const maxFontSize = 50;
     const minFontSize = 30;
 
@@ -21,7 +22,7 @@ export default function Square({value, handleClick, borderStyle}: Props) {
     }
     
     return <Pressable style={[borderStyle, styles.button]} onPress={handleClick}>
-        <Text style={randomFontStyle}>{value}</Text>
+        <Text style={[randomFontStyle, isWinner && styles.winnerSymbol]}>{value}</Text>
     </Pressable>
 }
 
@@ -34,6 +35,8 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        color: "#fff"
+    },
+    winnerSymbol: {
+        color: "rgba(20, 214, 26, 1)"
     }
 })

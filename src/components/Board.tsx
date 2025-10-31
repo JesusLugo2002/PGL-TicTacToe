@@ -1,3 +1,4 @@
+import { Winner } from "@/containers/BoardContainer";
 import { generateEmptyGrid } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
@@ -6,7 +7,7 @@ import Square from "./Square";
 type Props = {
     squares: Array<string>
     onHandleClick: (index: number) => void;
-    winner: string|null
+    winner: Winner|null
     nextPlayer: string
     boardCols: number
     onReset: () => void;
@@ -82,7 +83,7 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
 
 
     const getStatus = () => {
-        return winner ? `Player ${winner} wins` : ` Is ${nextPlayer} turn...`
+        return winner ? `Player ${winner.symbol} wins` : ` Is ${nextPlayer} turn...`
     }
 
     return (
@@ -93,7 +94,10 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
             {grid.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.row}>
                     {row.map((square: SquareObject) => (
-                        <Square value={squares[square.index]} handleClick={() => onHandleClick(square.index)} borderStyle={square.borderStyle}/>
+                        <Square value={squares[square.index]} 
+                        handleClick={() => onHandleClick(square.index)} 
+                        borderStyle={square.borderStyle}
+                        isWinner={winner?.line.includes(square.index)}/>
                     ))}
                 </View>
             ))}
