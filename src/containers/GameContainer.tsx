@@ -41,7 +41,7 @@ export default function GameContainer() {
         setCurrentMove(nextHistory.length - 1);
         setXIsNext(!xIsNext);
     }
-
+    
     function handleStartGame(boardCols: number): void {
         setBoardCols(boardCols);
         setInGame(true);
