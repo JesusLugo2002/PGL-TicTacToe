@@ -16,7 +16,7 @@ export default function Menu({startGame}: Props) {
             <Text style={[GlobalStyles.font, styles.subtitle]}>Start game</Text>
             <View>
                 {AVAILABLE_ROWS_OPTIONS.map((rows: number) => (
-                    <Button description={intInRoman(rows) + " rows"} onPress={() => startGame(rows)}/>
+                    <Button description={intInRoman(rows) + " rows"} onPress={() => startGame(rows)} buttonStyle={styles.button}/>
                 ))}
             </View>
         </View>
@@ -34,4 +34,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         margin: 20,
     },
+    button: {
+        margin: 10
+    }
 })

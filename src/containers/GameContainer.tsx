@@ -1,4 +1,3 @@
-import History from "@/components/MoveHistory";
 import Menu from "@/components/Menu";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -11,12 +10,15 @@ import MoveHistory from "@/components/MoveHistory";
 export type PlayerSymbol = "X" | "O"
 
 export default function GameContainer() {
+    const INITIAL_GAME_HISTORY: Record<PlayerSymbol, number> = {"X": 0, "O": 0};
+
     const [inGame, setInGame] = useState(false);
-    const [boardCols, setBoardCols] = useState(10);
+    const [boardCols, setBoardCols] = useState(3);
     const [xIsNext, setXIsNext] = useState(true);
     const [moveHistory, setMoveHistory] = useState(generateInitialHistory());
-    const [gameHistory, setGameHistory] = useState<Record<PlayerSymbol, number>>({"X": 0, "O": 0});
+    const [gameHistory, setGameHistory] = useState<Record<PlayerSymbol, number>>(INITIAL_GAME_HISTORY);
     const [currentMove, setCurrentMove] = useState(0);
+
     let currentSquares = moveHistory[currentMove];
 
     function generateInitialHistory() {
@@ -56,6 +58,10 @@ export default function GameContainer() {
         setGameHistory(gameHistory);
     } 
 
+    function resetGameHistory(): void {
+        setGameHistory(INITIAL_GAME_HISTORY);
+    }
+
     return inGame ? (
         <View style={styles.container}>
             <Text style={[GlobalStyles.font, styles.title]}>TicTacToe</Text>
@@ -66,7 +72,7 @@ export default function GameContainer() {
             giveVictory={giveVictory}
             boardCols={boardCols}/>
             <Actions onReset={resetGame}/>
-            <MoveHistory history={moveHistory} jumpTo={jumpToMove}/>
+            <MoveHistory history={moveHistory} jumpTo={jumpToMove} resetGameHistory={resetGameHistory}/>
         </View>
     ) : (
         <Menu startGame={handleStartGame}/> 

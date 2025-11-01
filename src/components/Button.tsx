@@ -1,32 +1,31 @@
 import { GlobalStyles } from "@/styles/GlobalStyles";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextStyle } from "react-native";
+import { Pressable, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
 
 type Props = {
-    index?: number;
-    description: string;
-    onPress: () => void;
-    textAlign?: TextStyle
+    index?: number
+    description: string
+    onPress: () => void
+    labelStyle?: TextStyle
+    buttonStyle?: ViewStyle
 }
 
-export default function Button({index, description, onPress, textAlign}: Props) {
+export default function Button({index, description, onPress, labelStyle, buttonStyle}: Props) {
     const [hovered, setHovered] = useState(false);
 
     return (
-        <Pressable style={[styles.button]} key={index} onPress={onPress} onHoverIn={() => setHovered(true)} onHoverOut={() => setHovered(false)}>
-            <Text style={[GlobalStyles.font, styles.label, textAlign ?? {textAlign: "center"}, hovered && styles.hoveredLabel]}>{description}</Text>
+        <Pressable style={buttonStyle && buttonStyle} key={index} onPress={onPress} onHoverIn={() => setHovered(true)} onHoverOut={() => setHovered(false)}>
+            <Text style={[GlobalStyles.font, styles.label, labelStyle && labelStyle, hovered && styles.hoveredLabel]}>{description}</Text>
         </Pressable>
     )   
 }
 
 const styles = StyleSheet.create({
-    button: {
-        margin: 10
-    },
     label: {
         letterSpacing: 0.5,
         borderRadius: 10,
-        textDecorationLine: "underline"
+        textDecorationLine: "underline",
+        textAlign: "center"
     },
     hoveredLabel: {
         textDecorationLine: "none",

@@ -6,20 +6,28 @@ import { GlobalStyles } from "@/styles/GlobalStyles";
 type Props = {
     history: Array<String[]>
     jumpTo: (moveIndex: number) => void;
+    resetGameHistory: () => void;
 }
 
-export default function MoveHistory({history, jumpTo}: Props) {
+export default function MoveHistory({history, jumpTo, resetGameHistory}: Props) {
     const moves = history.map((_, index) => {
-        let description = index > 0 ? "Go to move " + intInRoman(index) : "Go to game start";
+        let description = index > 0 ? "Go to move " + intInRoman(index) : "Game starts";
         return (
-            <Button index={index} description={description} onPress={() => jumpTo(index)}/>
+            <Button index={index} 
+            description={description} 
+            onPress={() => jumpTo(index)} 
+            buttonStyle={styles.button} 
+            labelStyle={styles.buttonLabel}/>
         )
     })
 
     return (
         <View style={styles.container}>
-            <Text style={[GlobalStyles.font]}>History</Text>   
-            <ScrollView>{moves}</ScrollView>
+            <View style={styles.header}>
+                <Text style={[GlobalStyles.font]}>Moves</Text>  
+                <Button description="Reset victories" onPress={() => resetGameHistory()}/>
+            </View>
+            <ScrollView style={styles.scroll}>{moves}</ScrollView>
         </View>
     )
 }
@@ -31,4 +39,18 @@ const styles = StyleSheet.create({
         width: "100%",
         backgroundColor: "#0000003d",
     },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    scroll: {
+        flex: 1,
+        marginTop: 10
+    },
+    button: {
+        margin: 5
+    },
+    buttonLabel: {
+        textAlign: "left"
+    }
 })
