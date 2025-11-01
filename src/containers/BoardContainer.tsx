@@ -1,6 +1,6 @@
 import Board from "@/components/Board";
-import { generateEmptyGrid } from "@/utils/utils";
 import { PlayerSymbol } from "./GameContainer";
+import { getCombinationsLine } from "@/utils/GetWinnerUtils";
 
 type Props = {
     xIsNext: boolean
@@ -16,12 +16,11 @@ export type Winner = {
 }
 
 export default function BoardContainer({xIsNext, squares, onPlay, giveVictory, boardCols}: Props) {
-    const lines = [...getHorizontalLines(), ...getVerticalLines(), ...getDiagonalLines()];
-
+    
     const getNextPlayer = () => {
         return xIsNext ? "X" : "O";
     }
-
+    
     const handleClick = (index: number) => {
         if (squares[index] || getWinner()) {
             return;
@@ -30,41 +29,9 @@ export default function BoardContainer({xIsNext, squares, onPlay, giveVictory, b
         nextSquares[index] = getNextPlayer();
         onPlay(nextSquares);
     }
-
-    function getHorizontalLines() {
-        let result = generateEmptyGrid(boardCols);
-        result.forEach((row, rowIndex) => {
-            result[rowIndex] = row.map((_, colIndex) => {
-                return colIndex + rowIndex * boardCols;
-            })
-        })
-        return result;
-    }
-
-    function getVerticalLines() {
-        let result = generateEmptyGrid(boardCols);
-        result.forEach((row, rowIndex) => {
-            result[rowIndex] = row.map((_, colIndex) => {
-                return rowIndex + colIndex * boardCols;
-            })
-        })
-        return result;
-    }
-
-    function getDiagonalLines() {
-        let result = Array(2).fill(Array(boardCols).fill(null));
-        result.forEach((diagonal, diagonalIndex) => {
-            result[diagonalIndex] = diagonal.map((_: any, rowIndex: number) => {
-                if (diagonalIndex == 0) {
-                    return boardCols * rowIndex + rowIndex;
-                } 
-                return (rowIndex + 1) * (boardCols - 1) 
-            })
-        })
-        return result;
-    }
-
+    
     function getWinner(): Winner|null {
+    const lines = getCombinationsLine(boardCols);
         for (let i = 0; i < lines.length; i++) {
             const currentLine = lines[i];
             const firstLineIndex = currentLine[0];
