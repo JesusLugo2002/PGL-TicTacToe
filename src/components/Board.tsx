@@ -3,6 +3,7 @@ import { generateEmptyGrid } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
 import Square from "./Square";
+import { GlobalStyles } from "@/styles/GlobalStyles";
 
 type Props = {
     squares: Array<string>
@@ -10,7 +11,6 @@ type Props = {
     winner: Winner|null
     nextPlayer: string
     boardCols: number
-    onReset: (goingToMenu: boolean) => void;
 }
 
 type BorderStyle = {
@@ -25,7 +25,7 @@ type SquareObject = {
     borderStyle: BorderStyle
 }
 
-export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, onReset}: Props) {
+export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols}: Props) {
     function generateBorderStyle(top: boolean, right: boolean, bottom: boolean, left: boolean): BorderStyle {
         return {
             borderTopColor: top ? "#fff" : "transparent",
@@ -81,60 +81,37 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
         })
     });
 
-
     const getStatus = () => {
         return winner ? `Player ${winner.symbol} wins` : ` Is ${nextPlayer} turn...`
     }
 
     return (
-        <View>
-            <View>
-                <Text style={styles.title}>TicTacToe</Text>
-            </View>
+        <View style={styles.container}>
             {grid.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.row}>
                     {row.map((square: SquareObject) => (
                         <Square value={squares[square.index]} 
                         handleClick={() => onHandleClick(square.index)} 
                         borderStyle={square.borderStyle}
-                        isWinner={winner?.line.includes(square.index)}/>
+                        isWinner={winner?.line.includes(square.index)}
+                        boardCols={boardCols}/>
                     ))}
                 </View>
             ))}
-            <View>
-                <Text style={styles.status}>{getStatus()}</Text>
-            </View>
-            <View style={styles.resetButtonContainer}>
-                <Button description="Reset" onPress={() => onReset(false)} textAlign={{textAlign: "center"}}/>
-                <Button description="Leave" onPress={() => onReset(true)} textAlign={{textAlign: "center"}}/>
-            </View>
+            <Text style={[GlobalStyles.font, styles.status]}>{getStatus()}</Text>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    container: {
+    },
     row: {
         flexDirection: "row",
     },
-    title: {
-        textAlign: "center",
-        fontFamily: "Handodle",
-        fontSize: 64,
-        letterSpacing: 2,
-        marginBottom: 20,
-        color: "#fff"
-    },
     status: {
-        fontFamily: "Handodle",
         textAlign: "center",
         fontSize: 32,
         marginTop: 20,  
-        color: "#fff"
-    },
-    resetButtonContainer: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "center",
-        marginTop: 20,
     }
 })

@@ -1,35 +1,36 @@
-import { Pressable, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
+import { GlobalStyles } from "@/styles/GlobalStyles";
+import { getRandomNumber } from "@/utils/utils";
+import { Dimensions, Pressable, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
 
 type Props = {
     value: String
     handleClick: () => void
     borderStyle: ViewStyle
     isWinner?: boolean
+    boardCols: number
 }
 
-export default function Square({value, handleClick, borderStyle, isWinner}: Props) {
-    const maxFontSize = 50;
-    const minFontSize = 30;
-
-    const getRandomNumber = (min: number, max: number) => {
-        return Math.floor(Math.random() * (maxFontSize - minFontSize + 1)) + minFontSize
+export default function Square({value, handleClick, borderStyle, isWinner, boardCols}: Props) {
+    function getResponsiveSize(percentage: number = 35): number {
+        const screenHeight = Dimensions.get("screen").height;
+        return (screenHeight * (percentage / 100)) / boardCols;
     }
-
-    const randomFontStyle: TextStyle = {
-        fontFamily: "Handodle",
-        color: "#fff",
+    const responsiveSize = getResponsiveSize();
+    const maxFontSize = responsiveSize;
+    const minFontSize = responsiveSize - 10;
+    
+    const squareSize: ViewStyle = { width: responsiveSize, height: responsiveSize };
+    const randomFontSize: TextStyle = {
         fontSize: getRandomNumber(minFontSize, maxFontSize),
     }
     
-    return <Pressable style={[borderStyle, styles.button]} onPress={handleClick}>
-        <Text style={[randomFontStyle, isWinner && styles.winnerSymbol]}>{value}</Text>
+    return <Pressable style={[squareSize, borderStyle, styles.button]} onPress={handleClick}>
+        <Text style={[GlobalStyles.font, randomFontSize, isWinner && styles.winnerSymbol]}>{value}</Text>
     </Pressable>
 }
 
 const styles = StyleSheet.create({
     button: {
-        width: 64,
-        height: 64,
         borderBlockColor: "#fff",
         borderWidth: 1,
         flex: 1,

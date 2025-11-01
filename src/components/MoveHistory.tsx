@@ -1,13 +1,14 @@
 import { intInRoman } from "@/utils/utils";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
+import { GlobalStyles } from "@/styles/GlobalStyles";
 
 type Props = {
     history: Array<String[]>
     jumpTo: (moveIndex: number) => void;
 }
 
-export default function History({history, jumpTo}: Props) {
+export default function MoveHistory({history, jumpTo}: Props) {
     const moves = history.map((_, index) => {
         let description = index > 0 ? "Go to move " + intInRoman(index) : "Go to game start";
         return (
@@ -17,28 +18,17 @@ export default function History({history, jumpTo}: Props) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>History</Text>   
-            <ScrollView style={styles.scroll}>
-                {moves}
-            </ScrollView>
+            <Text style={[GlobalStyles.font]}>History</Text>   
+            <ScrollView>{moves}</ScrollView>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        maxHeight: "50%"
+        flex: 1,
+        padding: 10,
+        width: "100%",
+        backgroundColor: "#0000003d",
     },
-    title: {
-        fontSize: 32,
-        fontWeight: "bold",
-        textAlign: "right",
-        fontFamily: "Handodle",
-        textDecorationLine: "underline",
-        color: "#fff"
-    },
-    scroll: {
-        paddingRight: 20,
-        marginTop: 20
-    }
 })

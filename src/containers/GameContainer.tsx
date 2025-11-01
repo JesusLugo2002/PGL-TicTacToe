@@ -1,9 +1,12 @@
-import History from "@/components/History";
+import History from "@/components/MoveHistory";
 import Menu from "@/components/Menu";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import BoardContainer from "./BoardContainer";
 import GameHistory from "@/components/GameHistory";
+import { GlobalStyles } from "@/styles/GlobalStyles";
+import Actions from "@/components/Actions";
+import MoveHistory from "@/components/MoveHistory";
 
 export type PlayerSymbol = "X" | "O"
 
@@ -55,14 +58,15 @@ export default function GameContainer() {
 
     return inGame ? (
         <View style={styles.container}>
+            <Text style={[GlobalStyles.font, styles.title]}>TicTacToe</Text>
             <GameHistory history={gameHistory}/>
             <BoardContainer xIsNext={xIsNext} 
             squares={currentSquares} 
             onPlay={handlePlay} 
-            onReset={resetGame}
             giveVictory={giveVictory}
             boardCols={boardCols}/>
-            <History history={moveHistory} jumpTo={jumpToMove}/>
+            <Actions onReset={resetGame}/>
+            <MoveHistory history={moveHistory} jumpTo={jumpToMove}/>
         </View>
     ) : (
         <Menu startGame={handleStartGame}/> 
@@ -73,8 +77,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "row",
-        gap: 40,
+        gap: 10,
+    },
+    title: {
+        textAlign: "center",
+        fontSize: 64,
+        letterSpacing: 2,
     },
 })

@@ -1,3 +1,4 @@
+import { GlobalStyles } from "@/styles/GlobalStyles";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextStyle } from "react-native";
 
@@ -13,7 +14,7 @@ export default function Button({index, description, onPress, textAlign}: Props) 
 
     return (
         <Pressable style={[styles.button]} key={index} onPress={onPress} onHoverIn={() => setHovered(true)} onHoverOut={() => setHovered(false)}>
-            <Text style={[styles.label, textAlign ?? {textAlign: "right"}, hovered && styles.hoveredLabel]}>{description}</Text>
+            <Text style={[GlobalStyles.font, styles.label, textAlign ?? {textAlign: "center"}, hovered && styles.hoveredLabel]}>{description}</Text>
         </Pressable>
     )   
 }
@@ -23,11 +24,8 @@ const styles = StyleSheet.create({
         margin: 10
     },
     label: {
-        fontSize: 24,
         letterSpacing: 0.5,
         borderRadius: 10,
-        fontFamily: "Handodle",
-        color: "#fff",
         textDecorationLine: "underline"
     },
     hoveredLabel: {
