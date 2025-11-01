@@ -1,4 +1,5 @@
-import { globalStyles } from "@/styles/GlobalStyles";
+import { GlobalStyles } from "@/styles/GlobalStyles";
+import { intInRoman } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
 
@@ -7,37 +8,27 @@ type Props = {
 }
 
 export default function Menu({startGame}: Props) {
+    const AVAILABLE_ROWS_OPTIONS = [3, 4, 5, 6, 7];
+
     return (
-        <View style={styles.container}>
-            <Text style={[globalStyles.text, styles.title]}>TicTacToe</Text>
-            <Text style={[globalStyles.text, styles.subtitle]}>Start game</Text>
-            <View style={styles.difficultyOptions}>
-                <Button description="III Rows" onPress={() => startGame(3)}/>
-                <Button description="V Rows" onPress={() => startGame(5)}/>
-                <Button description="VII Rows" onPress={() => startGame(7)}/>
+        <View>
+            <Text style={[GlobalStyles.font, styles.subtitle]}>Start game</Text>
+            <View>
+                {AVAILABLE_ROWS_OPTIONS.map((rows: number) => (
+                    <Button key={rows} description={intInRoman(rows) + " rows"} onPress={() => startGame(rows)} buttonStyle={styles.button}/>
+                ))}
             </View>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center"
-    },
-    title: {
-        fontSize: 64,
-        letterSpacing: 2,
-        textAlign: "center"
-    },
     subtitle: {
-        fontSize: 48,
+        fontSize: 32,
         textAlign: "center",
-        marginTop: 20,
-    },
-    difficultyOptions: {
         margin: 20,
-        flexDirection: "row",
-        gap: 50
     },
+    button: {
+        margin: 10
+    }
 })

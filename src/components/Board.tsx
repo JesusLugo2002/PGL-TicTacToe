@@ -1,16 +1,16 @@
-import { globalStyles } from "@/styles/GlobalStyles";
+import { GridSquares, Winner } from "@/containers/GameContainer";
+import { GlobalStyles } from "@/styles/GlobalStyles";
 import { generateEmptyGrid } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
-import Button from "./Button";
 import Square from "./Square";
 
 type Props = {
-    squares: Array<string>
+    squares: GridSquares
     onHandleClick: (index: number) => void;
-    winner: string|null
+    winner: Winner|null
     nextPlayer: string
     boardCols: number
-    onReset: () => void;
+    isTie: boolean
 }
 
 type BorderStyle = {
@@ -25,7 +25,16 @@ type SquareObject = {
     borderStyle: BorderStyle
 }
 
-export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, onReset}: Props) {
+export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, isTie}: Props) {
+
+    /**
+     * Genera un `BorderStyle` dependiendo de los bordes que se desean dibujar.
+     * @param {boolean} top borde superior.
+     * @param {boolean} right borde de la derecha.
+     * @param {boolean} bottom borde inferior.
+     * @param {boolean} left borde de la izquierda
+     * @returns {BorderStyle} Si un borde se ha marcado como `true`, se devuelve en color blanco, si no, sera transparente.
+     */
     function generateBorderStyle(top: boolean, right: boolean, bottom: boolean, left: boolean): BorderStyle {
         return {
             borderTopColor: top ? "#fff" : "transparent",
@@ -45,7 +54,15 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
     const bottomSquare: BorderStyle = generateBorderStyle(true, true, false, true);
     const bottomRightSquare: BorderStyle = generateBorderStyle(true, false, false, true);
 
-    function getBordersByPosition(row: number, col: number, boardCols: number) {
+    /**
+     * Devuelve el borde predefinido dependiendo de la posicion en fila y columna, tomando
+     * en cuenta el numero de las mismas.
+     * @param {number} row indice de la fila
+     * @param {number} col indice de la columna
+     * @param {number} boardCols numero de filas/columnas
+     * @returns {BorderStyle} el borde predefinido segun la posicion del cuadrado en el grid.
+     */
+    function getBordersByPosition(row: number, col: number, boardCols: number): BorderStyle {
         const lastIndex = boardCols - 1;
         if (row == 0) {
             if (col == 0) {
@@ -81,27 +98,34 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
         })
     });
 
-
-    const getStatus = () => {
-        return winner ? `Player ${winner} wins` : ` Is ${nextPlayer} turn...`
+    /**
+     * Devuelve el mensaje de estado dependiendo de si la partida esta en curso,
+     * si existe una victoria o si se encuentra en empate.
+     * @returns {string} el mensaje de estado.
+     */
+    function getStatus(): string {
+        if (isTie) {
+            return "Tie"
+        }
+        return winner ? `Player ${winner.symbol} wins` : ` Is ${nextPlayer} turn...`
     }
 
     return (
-        <View style={styles.container}>
-            <Text style={[globalStyles.text, styles.title]}>TicTacToe</Text>
-            <View style={styles.board}>
-                {grid.map((row, rowIndex) => (
-                    <View key={rowIndex} style={styles.row}>
-                        {row.map((square: SquareObject) => (
-                            <Square value={squares[square.index]} handleClick={() => onHandleClick(square.index)} borderStyle={square.borderStyle}/>
-                        ))}
-                    </View>
-                ))}
-            </View>
-            <View style={styles.bottomSection}>  
-                <Text style={[globalStyles.text, styles.status]}>{getStatus()}</Text>
-                <Button description="Leave game" onPress={() => onReset()} textAlign={{textAlign: "center"}}/>
-            </View>
+        <View>
+            {grid.map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.row}>
+                    {row.map((square: SquareObject) => (
+                        <Square 
+                        key={square.index}
+                        value={squares[square.index]} 
+                        handleClick={() => onHandleClick(square.index)} 
+                        borderStyle={square.borderStyle}
+                        isWinner={winner?.line.includes(square.index)}
+                        boardCols={boardCols}/>
+                    ))}
+                </View>
+            ))}
+            <Text style={[GlobalStyles.font, styles.status]}>{getStatus()}</Text>
         </View>
     )
 }
@@ -118,15 +142,9 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: "row",
     },
-    title: {
-        top: "10%",
-        fontSize: 64,
-        letterSpacing: 2,
-    },
-    bottomSection: {
-        bottom: "10%"  
-    },
     status: {
+        textAlign: "center",
         fontSize: 32,
-    },
+        marginTop: 20,  
+    }
 })

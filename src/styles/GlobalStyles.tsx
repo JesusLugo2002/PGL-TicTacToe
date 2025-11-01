@@ -1,9 +1,9 @@
 import { StyleSheet } from "react-native";
 
-export const globalStyles = StyleSheet.create({
-    text: {
+export const GlobalStyles = StyleSheet.create({
+    font: {
         fontFamily: "Handodle",
-        fontSize: 24,
+        fontSize: 20,
         color: "#fff"
     }
-})
+});
