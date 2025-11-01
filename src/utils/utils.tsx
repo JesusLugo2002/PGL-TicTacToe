@@ -1,7 +1,18 @@
+/**
+ * Genera un grid vacio con el numero de filas/columnas determinado.
+ * @param {number} boardCols numero de filas/columnas.
+ * @returns {Array<Array<any>>}
+ */
 export function generateEmptyGrid(boardCols: number): Array<Array<any>> {
     return Array(boardCols).fill(Array(boardCols).fill(null));
 }
 
+/**
+ * Convierte un numero entero en su version romana. Esta funcion se creo
+ * porque la fuente utilizada en el programa no soporta caracteres numericos.
+ * @param {number} num numero a transformar.
+ * @returns {string} numero en romano.
+ */
 export function intInRoman(num: number): string {
     const values = [
         1000, 900, 500, 400,
@@ -22,6 +33,12 @@ export function intInRoman(num: number): string {
     return result;
 }
 
+/**
+ * Devuelve un numero aleatorio entre un valor minimo y maximo.
+ * @param {number} min valor minimo.
+ * @param {number} max valor maximo.
+ * @returns {number} valor aleatorio.
+ */
 export function getRandomNumber(min: number, max: number): number {
     return Math.floor(Math.random() * (min - max + 1)) + min;
 }

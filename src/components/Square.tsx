@@ -3,7 +3,7 @@ import { getRandomNumber } from "@/utils/utils";
 import { Dimensions, Pressable, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
 
 type Props = {
-    value: String
+    value: String|null
     handleClick: () => void
     borderStyle: ViewStyle
     isWinner?: boolean
@@ -11,6 +11,14 @@ type Props = {
 }
 
 export default function Square({value, handleClick, borderStyle, isWinner, boardCols}: Props) {
+
+    /**
+     * Devuelve un valor para asignar como tamaño del cuadrado, tomando en cuenta
+     * un porcentaje determinado en `percentage` de la altura del dispositivo y
+     * el numero de filas/columnas del grid para hacerlo responsivo.
+     * @param {number} percentage porcentaje de la altura del dispositivo a tomar en cuenta.
+     * @returns {number} valor determinado por la altura del dispositivo y el numero de filas/columnas.
+     */
     function getResponsiveSize(percentage: number = 35): number {
         const screenHeight = Dimensions.get("screen").height;
         return (screenHeight * (percentage / 100)) / boardCols;

@@ -1,23 +1,36 @@
 import Board from "@/components/Board";
-import { PlayerSymbol, Winner } from "./GameContainer";
+import { GridSquares, PlayerSymbol, Winner } from "./GameContainer";
 
 type Props = {
     xIsNext: boolean
-    squares: string[]
+    squares: GridSquares
     winner: Winner|null
     isTie: boolean
-    checkWinner: (nextSquares: string[]) => boolean
-    onPlay: (nextSquares: string[]) => void
+    checkWinner: (nextSquares: GridSquares) => boolean
+    onPlay: (nextSquares: GridSquares) => void
     giveVictory: (symbol: PlayerSymbol) => void
     boardCols: number
 }
 
 export default function BoardContainer({xIsNext, squares, winner, isTie, checkWinner, onPlay, boardCols}: Props) {
-    const getNextPlayer = () => {
+    
+    /**
+     * Devuelve el `PlayerSymbol` equivalente al jugador actual.
+     * @returns {PlayerSymbol}
+     */
+    function getNextPlayer(): PlayerSymbol {
         return xIsNext ? "X" : "O";
     }
     
-    const handleClick = (index: number) => {
+    /**
+     * Gestiona la accion con un cuadrado del grid dependiendo del indice.
+     * Si se intenta interactuar con un cuadrado mientras ya tiene un valor
+     * o se haya determinado un ganador, se ignora.
+     * Si no actualiza el grid registrando el movimiento nuevo y se comprueba
+     * que exista una victoria o empate.
+     * @param {number} index indice del cuadrado con el que se interactua
+     */
+    function handleClick(index: number): void {
         if (squares[index] || winner) {
             return;
         }

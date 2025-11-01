@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
 
 type Props = {
-    history: Array<String[]>
+    history: Array<Array<string|null>>
     jumpTo: (moveIndex: number) => void;
 }
 

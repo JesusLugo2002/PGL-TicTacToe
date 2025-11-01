@@ -1,11 +1,11 @@
-import { Winner } from "@/containers/GameContainer";
+import { GridSquares, Winner } from "@/containers/GameContainer";
 import { GlobalStyles } from "@/styles/GlobalStyles";
 import { generateEmptyGrid } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
 import Square from "./Square";
 
 type Props = {
-    squares: Array<string>
+    squares: GridSquares
     onHandleClick: (index: number) => void;
     winner: Winner|null
     nextPlayer: string
@@ -26,6 +26,15 @@ type SquareObject = {
 }
 
 export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, isTie}: Props) {
+
+    /**
+     * Genera un `BorderStyle` dependiendo de los bordes que se desean dibujar.
+     * @param {boolean} top borde superior.
+     * @param {boolean} right borde de la derecha.
+     * @param {boolean} bottom borde inferior.
+     * @param {boolean} left borde de la izquierda
+     * @returns {BorderStyle} Si un borde se ha marcado como `true`, se devuelve en color blanco, si no, sera transparente.
+     */
     function generateBorderStyle(top: boolean, right: boolean, bottom: boolean, left: boolean): BorderStyle {
         return {
             borderTopColor: top ? "#fff" : "transparent",
@@ -45,7 +54,15 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
     const bottomSquare: BorderStyle = generateBorderStyle(true, true, false, true);
     const bottomRightSquare: BorderStyle = generateBorderStyle(true, false, false, true);
 
-    function getBordersByPosition(row: number, col: number, boardCols: number) {
+    /**
+     * Devuelve el borde predefinido dependiendo de la posicion en fila y columna, tomando
+     * en cuenta el numero de las mismas.
+     * @param {number} row indice de la fila
+     * @param {number} col indice de la columna
+     * @param {number} boardCols numero de filas/columnas
+     * @returns {BorderStyle} el borde predefinido segun la posicion del cuadrado en el grid.
+     */
+    function getBordersByPosition(row: number, col: number, boardCols: number): BorderStyle {
         const lastIndex = boardCols - 1;
         if (row == 0) {
             if (col == 0) {
@@ -81,7 +98,12 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
         })
     });
 
-    const getStatus = () => {
+    /**
+     * Devuelve el mensaje de estado dependiendo de si la partida esta en curso,
+     * si existe una victoria o si se encuentra en empate.
+     * @returns {string} el mensaje de estado.
+     */
+    function getStatus(): string {
         if (isTie) {
             return "Tie"
         }

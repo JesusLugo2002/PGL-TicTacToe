@@ -11,6 +11,8 @@ import BoardContainer from "./BoardContainer";
 
 export type PlayerSymbol = "X" | "O"
 
+export type GridSquares = Array<PlayerSymbol|null>
+
 export type Winner = {
     symbol: PlayerSymbol
     line: Array<number>
@@ -24,16 +26,26 @@ export default function GameContainer() {
     const [xIsNext, setXIsNext] = useState(true);
     const [winner, setWinner] = useState<Winner|null>(null);
     const [tie, setTie] = useState(false);
-    const [moveHistory, setMoveHistory] = useState(generateInitialHistory());
+    const [moveHistory, setMoveHistory] = useState<Array<GridSquares>>(generateInitialHistory());
     const [gameHistory, setGameHistory] = useState<Record<PlayerSymbol, number>>(INITIAL_GAME_HISTORY);
     const [currentMove, setCurrentMove] = useState(0);
 
-    let currentSquares = moveHistory[currentMove];
+    let currentSquares: GridSquares = moveHistory[currentMove];
 
-    function generateInitialHistory() {
+    /**
+     * Genera el valor inicial del MoveHistory (historial de movimientos)
+     * @returns {Array<GridSquares>}
+     */
+    function generateInitialHistory(): Array<GridSquares> {
         return [Array(boardCols * boardCols).fill(null)];
     }
 
+    /**
+     * Reinicia el juego a su estado inicial y, si fue reiniciado mientras
+     * estaba en curso una partida, se le da un punto al jugador contrario
+     * a ejecutar el reinicio.
+     * @param {boolean} goingToMenu `true` si desea que el jugador sea enviado al menu principal, si no, `false`.
+     */
     function resetGame(goingToMenu: boolean): void {
         if (goingToMenu) {
             setInGame(false);
@@ -49,34 +61,60 @@ export default function GameContainer() {
         setTie(false);
     }
 
-    function handlePlay(nextSquares: Array<string>): void {
+    /**
+     * Actualiza el historial y el turno del siguiente jugador haciendo uso de un nuevo
+     * grid de cuadrados. 
+     * @param {GridSquares} nextSquares array de cuadrados nuevos.
+     */
+    function handlePlay(nextSquares: GridSquares): void {
         const nextHistory = [...moveHistory.slice(0, currentMove + 1), nextSquares];
         setMoveHistory(nextHistory);
         setCurrentMove(nextHistory.length - 1);
         setXIsNext(!xIsNext);
     }
     
+    /**
+     * Gestiona el inicio de una partida configurando el tamaño del grid.
+     * @param {number} boardCols numero de filas/columnas del grid.
+     */
     function handleStartGame(boardCols: number): void {
         setBoardCols(boardCols);
         setInGame(true);
     }
 
+    /**
+     * Envia al jugador al movimiento elegido del historial de movimientos.
+     * @param {number} nextMove numero de turno/movimiento
+     */
     function jumpToMove(nextMove: number) {
         setCurrentMove(nextMove);
         setXIsNext(nextMove % 2 === 0);
     }
 
+    /**
+     * Aumenta en uno la puntuacion del jugador determinado.
+     * @param {PlayerSymbol} symbol simbolo del jugador
+     */
     function giveVictory(symbol: PlayerSymbol): void {
         const newScore = gameHistory[symbol] + 1;
         gameHistory[symbol] = newScore;
         setGameHistory(gameHistory);
     } 
 
+    /**
+     * Reinicia el contador de victorias.
+     */
     function resetGameHistory(): void {
         setGameHistory(INITIAL_GAME_HISTORY);
     }
 
-    function checkWinner(nextSquares: Array<string>): boolean {
+    /**
+     * Comprueba si el juego ha sido ganado mirando las combinaciones posibles y chequeando
+     * que se cumpla alguna, otorgando la victoria al jugador que lo logre.
+     * @param {GridSquares} nextSquares el grid actual para comprobar.
+     * @returns {boolean} `true` si se ha encontrado un ganador, `false` si no o si hay empate.
+     */
+    function checkWinner(nextSquares: GridSquares): boolean {
         const lines = getCombinationsLine(boardCols);
         for (let i = 0; i < lines.length; i++) {
             const currentLine = lines[i];
