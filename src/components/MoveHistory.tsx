@@ -6,10 +6,9 @@ import Button from "./Button";
 type Props = {
     history: Array<String[]>
     jumpTo: (moveIndex: number) => void;
-    resetGameHistory: () => void;
 }
 
-export default function MoveHistory({history, jumpTo, resetGameHistory}: Props) {
+export default function MoveHistory({history, jumpTo}: Props) {
     const moves = history.map((_, index) => {
         let description = index > 0 ? "Go to move " + intInRoman(index) : "Game starts";
         return (
@@ -27,7 +26,6 @@ export default function MoveHistory({history, jumpTo, resetGameHistory}: Props) 
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={[GlobalStyles.font]}>Moves</Text>  
-                <Button description="Reset victories" onPress={() => resetGameHistory()}/>
             </View>
             <ScrollView style={styles.scroll}>{moves}</ScrollView>
         </View>

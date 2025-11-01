@@ -89,7 +89,7 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
     }
 
     return (
-        <View style={styles.container}>
+        <View>
             {grid.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.row}>
                     {row.map((square: SquareObject) => (
@@ -109,8 +109,6 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
 }
 
 const styles = StyleSheet.create({
-    container: {
-    },
     row: {
         flexDirection: "row",
     },

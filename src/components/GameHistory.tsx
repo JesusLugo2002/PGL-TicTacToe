@@ -22,10 +22,10 @@ export default function GameHistory({history}: Props) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        marginBottom: 10,
         flexDirection: "row",
         justifyContent: "space-between",
-        width: "100%"
+        width: "100%",
     },
     scoreLabel: {
         textDecorationLine: "underline"

@@ -1,4 +1,5 @@
 import Actions from "@/components/Actions";
+import Button from "@/components/Button";
 import GameHistory from "@/components/GameHistory";
 import Menu from "@/components/Menu";
 import MoveHistory from "@/components/MoveHistory";
@@ -98,31 +99,41 @@ export default function GameContainer() {
         return false;
     }
 
-    return inGame ? (
+    return (
         <View style={styles.container}>
             <Text style={[GlobalStyles.font, styles.title]}>TicTacToe</Text>
             <GameHistory history={gameHistory}/>
-            <BoardContainer xIsNext={xIsNext} 
-            winner={winner}
-            isTie={tie}
-            checkWinner={checkWinner}
-            squares={currentSquares} 
-            onPlay={handlePlay} 
-            giveVictory={giveVictory}
-            boardCols={boardCols}/>
-            <Actions onReset={resetGame}/>
-            <MoveHistory history={moveHistory} jumpTo={jumpToMove} resetGameHistory={resetGameHistory}/>
+            {!inGame ? (
+                <View style={styles.container}>
+                    <Menu startGame={handleStartGame}/>
+                    <Button description="Reset victories stats" onPress={() => resetGameHistory()}/>
+                </View>
+            ) : (
+                <View style={styles.container}>
+                    <BoardContainer xIsNext={xIsNext} 
+                    winner={winner}
+                    isTie={tie}
+                    checkWinner={checkWinner}
+                    squares={currentSquares} 
+                    onPlay={handlePlay} 
+                    giveVictory={giveVictory}
+                    boardCols={boardCols}/>
+                    <Actions onReset={resetGame}/>
+                    <MoveHistory history={moveHistory} jumpTo={jumpToMove}/>
+                </View>
+            )}
         </View>
-    ) : (
-        <Menu startGame={handleStartGame}/> 
-    );
+    )
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: "100%",
         alignItems: "center",
         gap: 10,
+        justifyContent: "space-between",
+        paddingBottom: 10
     },
     title: {
         textAlign: "center",

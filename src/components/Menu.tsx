@@ -12,7 +12,6 @@ export default function Menu({startGame}: Props) {
 
     return (
         <View>
-            <Text style={[GlobalStyles.font, styles.title]}>TicTacToe</Text>
             <Text style={[GlobalStyles.font, styles.subtitle]}>Start game</Text>
             <View>
                 {AVAILABLE_ROWS_OPTIONS.map((rows: number) => (
@@ -24,11 +23,6 @@ export default function Menu({startGame}: Props) {
 }
 
 const styles = StyleSheet.create({
-    title: {
-        fontSize: 64,
-        letterSpacing: 2,
-        textAlign: "center"
-    },
     subtitle: {
         fontSize: 32,
         textAlign: "center",
