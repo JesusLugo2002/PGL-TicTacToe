@@ -8,15 +8,24 @@ export default function GameContainer() {
     const [inGame, setInGame] = useState(false);
     const [boardCols, setBoardCols] = useState(10);
     const [xIsNext, setXIsNext] = useState(true);
-    const [history, setHistory] = useState([Array(boardCols * boardCols).fill(null)]);
+    const [history, setHistory] = useState(generateInitialHistory());
     const [currentMove, setCurrentMove] = useState(0);
     let currentSquares = history[currentMove];
 
-    const resetGame = () => {
+    function generateInitialHistory() {
+        return [Array(boardCols * boardCols).fill(null)];
+    }
+
+    const leaveGame = () => {
         setInGame(false);
-        setHistory([Array(boardCols * boardCols).fill(null)]);
+        resetGame();
+    }
+
+    function resetGame(): void {
+        setHistory(generateInitialHistory());
         setCurrentMove(0);
         currentSquares = history[currentMove];
+        setXIsNext(!xIsNext);
     }
 
     const handlePlay = (nextSquares: Array<string>) => {
@@ -38,7 +47,12 @@ export default function GameContainer() {
 
     return inGame ? (
         <View style={styles.container}>
-            <BoardContainer xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} onReset={resetGame} boardCols={boardCols}/>
+            <BoardContainer xIsNext={xIsNext} 
+            squares={currentSquares} 
+            onPlay={handlePlay} 
+            onLeave={leaveGame}
+            onReset={resetGame}
+            boardCols={boardCols}/>
             <History history={history} jumpTo={jumpTo}/>
         </View>
     ) : (

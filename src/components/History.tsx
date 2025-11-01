@@ -1,5 +1,4 @@
 import { intInRoman } from "@/utils/utils";
-import { useRef } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
 
@@ -9,8 +8,6 @@ type Props = {
 }
 
 export default function History({history, jumpTo}: Props) {
-    const scrollViewRef = useRef(null);
-
     const moves = history.map((_, index) => {
         let description = index > 0 ? "Go to move " + intInRoman(index) : "Go to game start";
         return (

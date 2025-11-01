@@ -27,9 +27,10 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
         borderRadius: 10,
         fontFamily: "Handodle",
-        color: "#fff"
+        color: "#fff",
+        textDecorationLine: "underline"
     },
     hoveredLabel: {
-        textDecorationLine: "underline",
+        textDecorationLine: "none",
     }
 })
