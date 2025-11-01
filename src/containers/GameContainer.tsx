@@ -1,13 +1,19 @@
+import Actions from "@/components/Actions";
+import GameHistory from "@/components/GameHistory";
 import Menu from "@/components/Menu";
+import MoveHistory from "@/components/MoveHistory";
+import { GlobalStyles } from "@/styles/GlobalStyles";
+import { getCombinationsLine } from "@/utils/GetWinnerUtils";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import BoardContainer from "./BoardContainer";
-import GameHistory from "@/components/GameHistory";
-import { GlobalStyles } from "@/styles/GlobalStyles";
-import Actions from "@/components/Actions";
-import MoveHistory from "@/components/MoveHistory";
 
 export type PlayerSymbol = "X" | "O"
+
+export type Winner = {
+    symbol: PlayerSymbol
+    line: Array<number>
+}
 
 export default function GameContainer() {
     const INITIAL_GAME_HISTORY: Record<PlayerSymbol, number> = {"X": 0, "O": 0};
@@ -15,6 +21,8 @@ export default function GameContainer() {
     const [inGame, setInGame] = useState(false);
     const [boardCols, setBoardCols] = useState(3);
     const [xIsNext, setXIsNext] = useState(true);
+    const [winner, setWinner] = useState<Winner|null>(null);
+    const [tie, setTie] = useState(false);
     const [moveHistory, setMoveHistory] = useState(generateInitialHistory());
     const [gameHistory, setGameHistory] = useState<Record<PlayerSymbol, number>>(INITIAL_GAME_HISTORY);
     const [currentMove, setCurrentMove] = useState(0);
@@ -32,7 +40,12 @@ export default function GameContainer() {
         setMoveHistory(generateInitialHistory());
         setCurrentMove(0);
         currentSquares = moveHistory[currentMove];
-        setXIsNext(!xIsNext);
+        setXIsNext(winner == null ? !xIsNext : xIsNext);
+        if (winner == null && !tie) {
+            giveVictory(xIsNext ? "O" : "X");
+        }
+        setWinner(null)
+        setTie(false);
     }
 
     function handlePlay(nextSquares: Array<string>): void {
@@ -62,11 +75,37 @@ export default function GameContainer() {
         setGameHistory(INITIAL_GAME_HISTORY);
     }
 
+    function checkWinner(nextSquares: Array<string>): boolean {
+        const lines = getCombinationsLine(boardCols);
+        for (let i = 0; i < lines.length; i++) {
+            const currentLine = lines[i];
+            const firstLineIndex = currentLine[0];
+            const firstSym = nextSquares[firstLineIndex];
+            if (!firstSym) {
+                continue;
+            }
+            const matches = currentLine.map((index: number) => {
+                return nextSquares[index] === firstSym;
+            })
+            if (matches.every((match: boolean) => match)) {
+                setWinner({symbol: firstSym as PlayerSymbol, line: currentLine});
+                giveVictory(firstSym as PlayerSymbol);
+                return true;
+            }
+        }
+        setTie(nextSquares.every(value => value != null));
+        setWinner(null);
+        return false;
+    }
+
     return inGame ? (
         <View style={styles.container}>
             <Text style={[GlobalStyles.font, styles.title]}>TicTacToe</Text>
             <GameHistory history={gameHistory}/>
             <BoardContainer xIsNext={xIsNext} 
+            winner={winner}
+            isTie={tie}
+            checkWinner={checkWinner}
             squares={currentSquares} 
             onPlay={handlePlay} 
             giveVictory={giveVictory}

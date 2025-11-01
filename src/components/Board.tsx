@@ -1,9 +1,8 @@
-import { Winner } from "@/containers/BoardContainer";
+import { Winner } from "@/containers/GameContainer";
+import { GlobalStyles } from "@/styles/GlobalStyles";
 import { generateEmptyGrid } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
-import Button from "./Button";
 import Square from "./Square";
-import { GlobalStyles } from "@/styles/GlobalStyles";
 
 type Props = {
     squares: Array<string>
@@ -11,6 +10,7 @@ type Props = {
     winner: Winner|null
     nextPlayer: string
     boardCols: number
+    isTie: boolean
 }
 
 type BorderStyle = {
@@ -25,7 +25,7 @@ type SquareObject = {
     borderStyle: BorderStyle
 }
 
-export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols}: Props) {
+export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, isTie}: Props) {
     function generateBorderStyle(top: boolean, right: boolean, bottom: boolean, left: boolean): BorderStyle {
         return {
             borderTopColor: top ? "#fff" : "transparent",
@@ -82,6 +82,9 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
     });
 
     const getStatus = () => {
+        if (isTie) {
+            return "Tie"
+        }
         return winner ? `Player ${winner.symbol} wins` : ` Is ${nextPlayer} turn...`
     }
 
@@ -90,7 +93,9 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
             {grid.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.row}>
                     {row.map((square: SquareObject) => (
-                        <Square value={squares[square.index]} 
+                        <Square 
+                        key={square.index}
+                        value={squares[square.index]} 
                         handleClick={() => onHandleClick(square.index)} 
                         borderStyle={square.borderStyle}
                         isWinner={winner?.line.includes(square.index)}

@@ -1,7 +1,7 @@
+import { GlobalStyles } from "@/styles/GlobalStyles";
 import { intInRoman } from "@/utils/utils";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
-import { GlobalStyles } from "@/styles/GlobalStyles";
 
 type Props = {
     history: Array<String[]>
@@ -13,7 +13,9 @@ export default function MoveHistory({history, jumpTo, resetGameHistory}: Props) 
     const moves = history.map((_, index) => {
         let description = index > 0 ? "Go to move " + intInRoman(index) : "Game starts";
         return (
-            <Button index={index} 
+            <Button 
+            key={index}
+            index={index} 
             description={description} 
             onPress={() => jumpTo(index)} 
             buttonStyle={styles.button} 

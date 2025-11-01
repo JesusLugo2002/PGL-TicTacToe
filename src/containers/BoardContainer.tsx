@@ -1,59 +1,37 @@
 import Board from "@/components/Board";
-import { PlayerSymbol } from "./GameContainer";
-import { getCombinationsLine } from "@/utils/GetWinnerUtils";
+import { PlayerSymbol, Winner } from "./GameContainer";
 
 type Props = {
     xIsNext: boolean
     squares: string[]
+    winner: Winner|null
+    isTie: boolean
+    checkWinner: (nextSquares: string[]) => boolean
     onPlay: (nextSquares: string[]) => void
     giveVictory: (symbol: PlayerSymbol) => void
     boardCols: number
 }
 
-export type Winner = {
-    symbol: String
-    line: Array<number>
-}
-
-export default function BoardContainer({xIsNext, squares, onPlay, giveVictory, boardCols}: Props) {
-    
+export default function BoardContainer({xIsNext, squares, winner, isTie, checkWinner, onPlay, boardCols}: Props) {
     const getNextPlayer = () => {
         return xIsNext ? "X" : "O";
     }
     
     const handleClick = (index: number) => {
-        if (squares[index] || getWinner()) {
+        if (squares[index] || winner) {
             return;
         }
         const nextSquares = squares.slice();
         nextSquares[index] = getNextPlayer();
         onPlay(nextSquares);
+        checkWinner(nextSquares);
     }
     
-    function getWinner(): Winner|null {
-    const lines = getCombinationsLine(boardCols);
-        for (let i = 0; i < lines.length; i++) {
-            const currentLine = lines[i];
-            const firstLineIndex = currentLine[0];
-            const firstSym = squares[firstLineIndex];
-            if (!firstSym) {
-                continue;
-            }
-            const matches = currentLine.map((index: number) => {
-                return squares[index] === firstSym;
-            })
-            if (matches.every((match: boolean) => match)) {
-                giveVictory(firstSym as PlayerSymbol);
-                return {symbol: firstSym, line: currentLine};
-            }
-        }
-        return null;
-    }
-
     return (
         <Board squares={squares} 
         onHandleClick={handleClick} 
-        winner={getWinner()} 
+        isTie={isTie}
+        winner={winner} 
         nextPlayer={getNextPlayer()} 
         boardCols={boardCols} />
     )
