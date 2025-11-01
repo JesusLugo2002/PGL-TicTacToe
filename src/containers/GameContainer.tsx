@@ -3,57 +3,66 @@ import Menu from "@/components/Menu";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import BoardContainer from "./BoardContainer";
+import GameHistory from "@/components/GameHistory";
+
+export type PlayerSymbol = "X" | "O"
 
 export default function GameContainer() {
     const [inGame, setInGame] = useState(false);
     const [boardCols, setBoardCols] = useState(10);
     const [xIsNext, setXIsNext] = useState(true);
-    const [history, setHistory] = useState(generateInitialHistory());
+    const [moveHistory, setMoveHistory] = useState(generateInitialHistory());
+    const [gameHistory, setGameHistory] = useState<Record<PlayerSymbol, number>>({"X": 0, "O": 0});
     const [currentMove, setCurrentMove] = useState(0);
-    let currentSquares = history[currentMove];
+    let currentSquares = moveHistory[currentMove];
 
     function generateInitialHistory() {
         return [Array(boardCols * boardCols).fill(null)];
     }
 
-    const leaveGame = () => {
-        setInGame(false);
-        resetGame();
-    }
-
-    function resetGame(): void {
-        setHistory(generateInitialHistory());
+    function resetGame(goingToMenu: boolean): void {
+        if (goingToMenu) {
+            setInGame(false);
+        }
+        setMoveHistory(generateInitialHistory());
         setCurrentMove(0);
-        currentSquares = history[currentMove];
+        currentSquares = moveHistory[currentMove];
         setXIsNext(!xIsNext);
     }
 
-    const handlePlay = (nextSquares: Array<string>) => {
-        const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-        setHistory(nextHistory);
+    function handlePlay(nextSquares: Array<string>): void {
+        const nextHistory = [...moveHistory.slice(0, currentMove + 1), nextSquares];
+        setMoveHistory(nextHistory);
         setCurrentMove(nextHistory.length - 1);
         setXIsNext(!xIsNext);
-    } 
+    }
 
-    const handleStartGame = (boardCols: number) => {
+    function handleStartGame(boardCols: number): void {
         setBoardCols(boardCols);
         setInGame(true);
     }
 
-    function jumpTo(nextMove: number) {
+    function jumpToMove(nextMove: number) {
         setCurrentMove(nextMove);
         setXIsNext(nextMove % 2 === 0);
     }
 
+    function giveVictory(symbol: PlayerSymbol): void {
+        const newScore = gameHistory[symbol] + 1;
+        gameHistory[symbol] = newScore;
+        setGameHistory(gameHistory);
+    } 
+
     return inGame ? (
         <View style={styles.container}>
+            <GameHistory history={gameHistory}/>
             <BoardContainer xIsNext={xIsNext} 
             squares={currentSquares} 
             onPlay={handlePlay} 
-            onLeave={leaveGame}
             onReset={resetGame}
+            giveVictory={giveVictory}
             boardCols={boardCols}/>
-            <History history={history} jumpTo={jumpTo}/>
+            <History history={moveHistory} jumpTo={jumpToMove}/>
         </View>
     ) : (
         <Menu startGame={handleStartGame}/> 

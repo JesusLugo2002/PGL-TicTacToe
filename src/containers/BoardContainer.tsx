@@ -1,12 +1,13 @@
 import Board from "@/components/Board";
 import { generateEmptyGrid } from "@/utils/utils";
+import { PlayerSymbol } from "./GameContainer";
 
 type Props = {
-    xIsNext: boolean,
-    squares: string[],
-    onPlay: (nextSquares: string[]) => void,
-    onLeave: () => void;
-    onReset: () => void;
+    xIsNext: boolean
+    squares: string[]
+    onPlay: (nextSquares: string[]) => void
+    onReset: (goingToMenu: boolean) => void
+    giveVictory: (symbol: PlayerSymbol) => void
     boardCols: number
 }
 
@@ -15,7 +16,7 @@ export type Winner = {
     line: Array<number>
 }
 
-export default function BoardContainer({xIsNext, squares, onPlay, onLeave, onReset, boardCols}: Props) {
+export default function BoardContainer({xIsNext, squares, onPlay, onReset, giveVictory, boardCols}: Props) {
     const lines = [...getHorizontalLines(), ...getVerticalLines(), ...getDiagonalLines()];
 
     const getNextPlayer = () => {
@@ -76,6 +77,7 @@ export default function BoardContainer({xIsNext, squares, onPlay, onLeave, onRes
                 return squares[index] === firstSym;
             })
             if (matches.every((match: boolean) => match)) {
+                giveVictory(firstSym as PlayerSymbol);
                 return {symbol: firstSym, line: currentLine};
             }
         }
@@ -88,7 +90,6 @@ export default function BoardContainer({xIsNext, squares, onPlay, onLeave, onRes
         winner={getWinner()} 
         nextPlayer={getNextPlayer()} 
         boardCols={boardCols} 
-        onLeave={onLeave}
         onReset={onReset}/>
     )
 }

@@ -10,8 +10,7 @@ type Props = {
     winner: Winner|null
     nextPlayer: string
     boardCols: number
-    onLeave: () => void;
-    onReset: () => void;
+    onReset: (goingToMenu: boolean) => void;
 }
 
 type BorderStyle = {
@@ -26,7 +25,7 @@ type SquareObject = {
     borderStyle: BorderStyle
 }
 
-export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, onLeave, onReset}: Props) {
+export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, onReset}: Props) {
     function generateBorderStyle(top: boolean, right: boolean, bottom: boolean, left: boolean): BorderStyle {
         return {
             borderTopColor: top ? "#fff" : "transparent",
@@ -106,8 +105,8 @@ export default function Board({squares, onHandleClick, winner, nextPlayer, board
                 <Text style={styles.status}>{getStatus()}</Text>
             </View>
             <View style={styles.resetButtonContainer}>
-                <Button description="Reset" onPress={() => onReset()} textAlign={{textAlign: "center"}}/>
-                <Button description="Leave" onPress={() => onLeave()} textAlign={{textAlign: "center"}}/>
+                <Button description="Reset" onPress={() => onReset(false)} textAlign={{textAlign: "center"}}/>
+                <Button description="Leave" onPress={() => onReset(true)} textAlign={{textAlign: "center"}}/>
             </View>
         </View>
     )
