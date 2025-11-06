@@ -11,11 +11,11 @@ import BoardContainer from "./BoardContainer";
 
 export type PlayerSymbol = "X" | "O"
 
-export type GridSquares = Array<PlayerSymbol|null>
+export type GridSquares = (PlayerSymbol|null)[]
 
 export type Winner = {
     symbol: PlayerSymbol
-    line: Array<number>
+    line: number[]
 }
 
 export default function GameContainer() {
@@ -26,7 +26,7 @@ export default function GameContainer() {
     const [xIsNext, setXIsNext] = useState(true);
     const [winner, setWinner] = useState<Winner|null>(null);
     const [tie, setTie] = useState(false);
-    const [moveHistory, setMoveHistory] = useState<Array<GridSquares>>(generateInitialHistory());
+    const [moveHistory, setMoveHistory] = useState<GridSquares[]>(generateInitialHistory());
     const [gameHistory, setGameHistory] = useState<Record<PlayerSymbol, number>>(INITIAL_GAME_HISTORY);
     const [currentMove, setCurrentMove] = useState(0);
 
@@ -36,7 +36,7 @@ export default function GameContainer() {
      * Genera el valor inicial del MoveHistory (historial de movimientos)
      * @returns {Array<GridSquares>}
      */
-    function generateInitialHistory(): Array<GridSquares> {
+    function generateInitialHistory(): GridSquares[] {
         return [Array(boardCols * boardCols).fill(null)];
     }
 

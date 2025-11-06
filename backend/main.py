@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask_restx import Resource, Api, fields
+from flask_cors import CORS
 from uuid import uuid4
 from datetime import timedelta
 from time import time
@@ -14,6 +15,7 @@ matches = {}  # {match_id: {"players": {device_id: X/O}, "turn": device_id, "boa
 
 # ======== APP Y API ========
 app = Flask(__name__)
+CORS(app)
 api = Api(
     app,
     title="TicTacToe API",
