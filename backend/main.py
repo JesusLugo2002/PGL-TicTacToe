@@ -4,7 +4,6 @@ from flask_cors import CORS
 from uuid import uuid4
 from datetime import timedelta
 from time import time
-import random
 
 # ======== CONFIGURACIÓN ========
 DISCONNECT_TIMEOUT = timedelta(minutes=5)
@@ -12,6 +11,7 @@ DISCONNECT_TIMEOUT = timedelta(minutes=5)
 # ======== MODELOS EN MEMORIA ========
 devices = {}  # {device_id: {"last_active": timestamp, "wins": 0, "losses": 0, "alias": str}}
 matches = {}  # {match_id: {"players": {device_id: X/O}, "turn": device_id, "board": [[]], "size": int, "winner": symbol or None}}
+waiting_players = []  # [{"device_id": str, "size": int}]
 
 # ======== APP Y API ========
 app = Flask(__name__)
@@ -35,6 +35,11 @@ def cleanup_inactive_devices():
     ]
     for d in inactive:
         del devices[d]
+
+
+def cleanup_waiting_players():
+    """Elimina jugadores en espera cuyos dispositivos ya no están conectados."""
+    waiting_players[:] = [p for p in waiting_players if p["device_id"] in devices]
 
 
 def update_activity(device_id):
@@ -75,10 +80,16 @@ def check_winner(board):
                 if winner:
                     return winner
 
+    # Hay empate si no hay espacios vacíos
+    if all(cell in ["X", "O"] for row in board for cell in row):
+        return "Draw"
+
     return None
 
 
 # ======== MODELOS DE DOCUMENTACIÓN ========
+
+# ---- Registro de dispositivo ----
 register_request = api.model(
     "RegisterRequest",
     {
@@ -97,8 +108,24 @@ device_list_response = api.model(
     "DeviceListResponse",
     {
         "connected_devices": fields.List(
-            fields.String, description="IDs de los dispositivos actualmente conectados"
+            fields.String,
+            description="IDs de los dispositivos actualmente conectados",
         )
+    },
+)
+
+# ---- Creación / espera de partida ----
+match_create_request = api.model(
+    "MatchCreateRequest",
+    {
+        "device_id": fields.String(
+            required=True, description="ID del dispositivo que solicita la partida"
+        ),
+        "size": fields.Integer(
+            required=False,
+            description="Tamaño del tablero (3–7). Por defecto 3.",
+            example=3,
+        ),
     },
 )
 
@@ -106,11 +133,45 @@ match_create_response = api.model(
     "MatchCreateResponse",
     {
         "match_id": fields.String(description="ID de la partida creada"),
-        "players": fields.Raw(description="Diccionario de jugadores y sus símbolos"),
+        "players": fields.Raw(
+            description="Diccionario de jugadores (device_id -> símbolo)"
+        ),
         "board_size": fields.Integer(description="Tamaño del tablero"),
     },
 )
 
+match_waiting_response = api.model(
+    "MatchWaitingResponse",
+    {
+        "message": fields.String(
+            description="Mensaje indicando que el jugador está esperando un oponente"
+        ),
+    },
+)
+
+# ---- Estado de espera ----
+waiting_status_response = api.model(
+    "WaitingStatusResponse",
+    {
+        "status": fields.String(
+            description="Estado del dispositivo: waiting, matched o idle"
+        ),
+        "match_id": fields.String(
+            required=False,
+            description="ID de la partida si ya fue emparejado",
+        ),
+        "players": fields.Raw(
+            required=False,
+            description="Jugadores de la partida si ya está emparejado",
+        ),
+        "board_size": fields.Integer(
+            required=False,
+            description="Tamaño del tablero asociado (si aplica)",
+        ),
+    },
+)
+
+# ---- Movimientos ----
 move_request = api.model(
     "MoveRequest",
     {
@@ -124,26 +185,32 @@ move_response = api.model(
     "MoveResponse",
     {
         "board": fields.List(
-            fields.List(fields.String), description="Estado actualizado del tablero"
+            fields.List(fields.String),
+            description="Estado actualizado del tablero",
         ),
         "next_turn": fields.String(description="ID del siguiente jugador"),
         "winner": fields.String(description="Símbolo del ganador (si existe)"),
     },
 )
 
+# ---- Sincronización ----
 sync_response = api.model(
     "SyncResponse",
     {
         "board": fields.List(
-            fields.List(fields.String), description="Estado actual del tablero"
+            fields.List(fields.String),
+            description="Estado actual del tablero",
         ),
         "turn": fields.String(description="ID del jugador cuyo turno es"),
         "winner": fields.String(description="Símbolo del ganador, si hay uno"),
         "size": fields.Integer(description="Tamaño del tablero"),
-        "players": fields.Raw(description="Diccionario de jugadores y sus símbolos"),
+        "players": fields.Raw(
+            description="Diccionario de jugadores y sus símbolos",
+        ),
     },
 )
 
+# ---- Estado del dispositivo ----
 device_status_response = api.model(
     "DeviceStatusResponse",
     {
@@ -203,31 +270,96 @@ class Device(Resource):
 
 @api.route("/matches")
 class CreateMatch(Resource):
-    @api.marshal_with(match_create_response, code=201)
+    @api.expect(match_create_request)
+    @api.response(201, "Partida creada", match_create_response)
+    @api.response(202, "Esperando oponente", match_waiting_response)
     def post(self):
-        """Crea una nueva partida entre dos jugadores conectados."""
+        """Crea una partida o deja al jugador esperando a otro con el mismo tamaño de tablero."""
         cleanup_inactive_devices()
-        if len(devices) < 2:
-            api.abort(400, "No hay suficientes dispositivos conectados")
-
-        d1, d2 = random.sample(list(devices.keys()), 2)
         data = request.get_json(silent=True) or {}
-        size = data.get("size", random.randint(3, 7))
-        board = [["" for _ in range(size)] for _ in range(size)]
-        match_id = str(uuid4())
 
-        players = {d1: "X", d2: "O"}
-        turn = next(pid for pid, sym in players.items() if sym == "X")
+        device_id = data.get("device_id")
+        size = int(data.get("size", 3))
+        size = max(3, min(size, 7))  # aseguramos rango 3–7
 
-        matches[match_id] = {
-            "players": players,
-            "turn": turn,
-            "board": board,
-            "size": size,
-            "winner": None,
-        }
+        if not device_id or device_id not in devices:
+            api.abort(400, "device_id inválido o no registrado")
 
-        return {"match_id": match_id, "players": players, "board_size": size}, 201
+        update_activity(device_id)
+        cleanup_waiting_players()  # limpia jugadores desconectados
+
+        # Evitar duplicados en espera
+        if any(p["device_id"] == device_id for p in waiting_players):
+            return {"message": "Ya estás esperando un oponente..."}, 202
+
+        # Buscar un jugador esperando con el mismo tamaño
+        opponent = None
+        for p in waiting_players:
+            if p["size"] == size:
+                opponent = p
+                break
+
+        if opponent:
+            # Encontramos oponente compatible → lo quitamos de la cola
+            waiting_players.remove(opponent)
+            opponent_id = opponent["device_id"]
+
+            match_id = str(uuid4())
+            board = [["" for _ in range(size)] for _ in range(size)]
+
+            players = {device_id: "X", opponent_id: "O"}
+            turn = device_id  # el que hace la petición comienza
+
+            matches[match_id] = {
+                "players": players,
+                "turn": turn,
+                "board": board,
+                "size": size,
+                "winner": None,
+            }
+
+            # Asignamos referencia de partida a ambos dispositivos
+            devices[device_id]["match_id"] = match_id
+            devices[opponent_id]["match_id"] = match_id
+
+            return {"match_id": match_id, "players": players, "board_size": size}, 201
+
+        # Si no hay nadie esperando en este tamaño → agregar a la cola
+        waiting_players.append({"device_id": device_id, "size": size})
+        devices[device_id]["match_id"] = None
+
+        return {"message": f"Esperando oponente para tablero {size}x{size}..."}, 202
+
+
+@api.route("/matches/waiting-status")
+class WaitingStatus(Resource):
+    def get(self):
+        """Devuelve si el dispositivo ya tiene una partida asignada o sigue esperando."""
+        device_id = request.args.get("device_id")
+
+        if not device_id or device_id not in devices:
+            api.abort(400, "device_id inválido o no registrado")
+
+        match_id = devices[device_id].get("match_id")
+
+        # Si ya tiene partida asignada
+        if match_id:
+            match = matches.get(match_id)
+            if match:
+                return {
+                    "status": "matched",
+                    "match_id": match_id,
+                    "players": match["players"],
+                    "board_size": match["size"],
+                }
+
+        # Si está en espera
+        for p in waiting_players:
+            if p["device_id"] == device_id:
+                return {"status": "waiting", "board_size": p["size"]}
+
+        # Si no está en ninguna lista
+        return {"status": "idle"}
 
 
 @api.route("/matches/<match_id>/moves")
@@ -261,6 +393,9 @@ class MatchMove(Resource):
             for pid, sym in match["players"].items():
                 if sym == winner:
                     devices[pid]["wins"] += 1
+                elif winner == "Draw":
+                    # En caso de empate, no se cuentan victorias ni derrotas
+                    continue
                 else:
                     devices[pid]["losses"] += 1
             return {"board": match["board"], "next_turn": None, "winner": winner}
