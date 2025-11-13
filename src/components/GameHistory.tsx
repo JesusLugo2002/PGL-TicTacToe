@@ -1,4 +1,4 @@
-import { PlayerSymbol } from "@/containers/GameContainer"
+import { PlayerSymbol } from "@/interfaces/Player"
 import { GlobalStyles } from "@/styles/GlobalStyles"
 import { intInRoman } from "@/utils/utils"
 import { StyleSheet, Text, View } from "react-native"

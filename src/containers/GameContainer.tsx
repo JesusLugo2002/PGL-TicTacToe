@@ -3,15 +3,13 @@ import Button from "@/components/Button";
 import GameHistory from "@/components/GameHistory";
 import Menu from "@/components/Menu";
 import MoveHistory from "@/components/MoveHistory";
+import { GridSquares } from "@/interfaces/Board";
+import { PlayerSymbol } from "@/interfaces/Player";
 import { GlobalStyles } from "@/styles/GlobalStyles";
 import { getCombinationsLine } from "@/utils/GetWinnerUtils";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import BoardContainer from "./BoardContainer";
-
-export type PlayerSymbol = "X" | "O"
-
-export type GridSquares = (PlayerSymbol|null)[]
 
 export type Winner = {
     symbol: PlayerSymbol
