@@ -67,6 +67,16 @@ export function getPlayer(playerId: string): Promise<PlayerStats> {
 }
 
 /**
+ * Devuelve un status que indica si el jugador esta esperando una partida,
+ * esta inactiva o esta en una partida.
+ * @param playerId UUID del jugador.
+ * @returns Devuelve un objeto con el estado del jugador.
+ */
+export function getPlayerStatus(playerId: string): Promise<any> {
+  return getRequest(`/matches/waiting-status?device_id=${playerId}`);
+}
+
+/**
  * Crea una partida si hay algun jugador en espera que cumpla las condiciones. De lo contrario,
  * deja al jugador en espera bajo las condiciones asignadas.
  * @param playerId UUID del jugador.
