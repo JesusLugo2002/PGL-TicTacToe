@@ -32,5 +32,8 @@ export default function SessionContainer() {
             <SessionMenu setSession={setupSession}/>
         </Suspense>
     }
-    return <GameContainer session={session} logout={logout}/>
+    return <Suspense>
+        <GameContainer session={session} logout={logout}/>
+    </Suspense>
+    
 }

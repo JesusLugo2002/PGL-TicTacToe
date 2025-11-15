@@ -11,7 +11,7 @@ import { Session } from "@/interfaces/Session";
 import { GlobalStyles } from "@/styles/GlobalStyles";
 import { createMatch, getMatch, getPlayerStatus } from "@/utils/ApiHandler";
 import { getCombinationsLine } from "@/utils/GetWinnerUtils";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import BoardContainer from "./BoardContainer";
 
@@ -20,7 +20,7 @@ type Props = {
     logout: () => void
 }
 
-export default async function GameContainer({ session, logout }: Props) {
+export default function GameContainer({ session, logout }: Props) {
     const INITIAL_GAME_HISTORY: Record<PlayerSymbol, number> = {"X": 0, "O": 0};
 
     const [inGame, setInGame] = useState(false);
@@ -73,10 +73,6 @@ export default async function GameContainer({ session, logout }: Props) {
             if (!playerOnlineStatus.match_id) {
                 return;
             }
-            /**
-             * TODO: La pantalla de uno de los dos jugadores empieza a parpadear en blanco y sale
-             * un error de "Uncached promise"
-            */
             const match = await getMatch(playerOnlineStatus.match_id);
         }, TIME_IN_MS);
         return () => clearInterval(updateBoardPolling);
@@ -212,19 +208,21 @@ export default async function GameContainer({ session, logout }: Props) {
         <View style={styles.container}>
             <Title/>
             {session.deviceId ? (
-                <OnlineStats playerId={session.deviceId} playerName={session.playerName}/>
+                <Suspense fallback={<Text>Loading stats...</Text>}>
+                    <OnlineStats playerId={session.deviceId} playerName={session.playerName}/>
+                </Suspense>
                 ) : (
                 <GameHistory history={gameHistory}/>
             )}
             <View style={styles.container}>
                 {!inGame ? (
-                    <>
+                    <Suspense fallback={<Text>Loading menu...</Text>}>
                         <Menu startGame={handleStartGame} />
                         <View style={styles.bottomBar}>
                             <Button description="Reset victories stats" onPress={() => resetGameHistory()} />
                             <Button description="Logout" onPress={() => logout()} />
                         </View>
-                    </>
+                    </Suspense>                  
                 ) : (
                     session.isOnline ? (
                         showPlayerWaitingStatus()
