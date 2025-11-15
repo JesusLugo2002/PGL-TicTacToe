@@ -1,7 +1,6 @@
 import Board from "@/components/Board";
 import { GridSquares } from "@/interfaces/Board";
-import { PlayerSymbol } from "@/interfaces/Player";
-import { Winner } from "./GameContainer";
+import { PlayerSymbol, Winner } from "@/interfaces/Player";
 
 type Props = {
     xIsNext: boolean

@@ -3,20 +3,21 @@ import Button from "@/components/Button";
 import GameHistory from "@/components/GameHistory";
 import Menu from "@/components/Menu";
 import MoveHistory from "@/components/MoveHistory";
+import Title from "@/components/Title";
 import { GridSquares } from "@/interfaces/Board";
-import { PlayerSymbol } from "@/interfaces/Player";
-import { GlobalStyles } from "@/styles/GlobalStyles";
+import { PlayerSymbol, Winner } from "@/interfaces/Player";
+import { Session } from "@/interfaces/Session";
+import { getOnlinePlayers } from "@/utils/ApiHandler";
 import { getCombinationsLine } from "@/utils/GetWinnerUtils";
-import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
 import BoardContainer from "./BoardContainer";
 
-export type Winner = {
-    symbol: PlayerSymbol
-    line: number[]
+type Props = {
+    session: Session
 }
 
-export default function GameContainer() {
+export default function GameContainer({ session }: Props) {
     const INITIAL_GAME_HISTORY: Record<PlayerSymbol, number> = {"X": 0, "O": 0};
 
     const [inGame, setInGame] = useState(false);
@@ -29,6 +30,13 @@ export default function GameContainer() {
     const [currentMove, setCurrentMove] = useState(0);
 
     let currentSquares: GridSquares = moveHistory[currentMove];
+
+    useEffect(() => {
+        console.log(session)
+        if (session.isOnline && session.deviceId) {
+            getOnlinePlayers().then((players) => console.log(players));
+        }
+    }, [])
 
     /**
      * Genera el valor inicial del MoveHistory (historial de movimientos)
@@ -137,7 +145,7 @@ export default function GameContainer() {
 
     return (
         <View style={styles.container}>
-            <Text style={[GlobalStyles.font, styles.title]}>TicTacToe</Text>
+            <Title/>
             <GameHistory history={gameHistory}/>
             {!inGame ? (
                 <View style={styles.container}>
@@ -170,10 +178,5 @@ const styles = StyleSheet.create({
         gap: 10,
         justifyContent: "space-between",
         paddingBottom: 10
-    },
-    title: {
-        textAlign: "center",
-        fontSize: 64,
-        letterSpacing: 2,
     },
 })

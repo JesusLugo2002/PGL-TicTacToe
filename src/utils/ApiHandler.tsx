@@ -45,7 +45,7 @@ async function postRequest(endpoint: string, body: Record<string, any>): Promise
  * @param playerName Nombre del jugador a registrar.
  * @returns UUID asignado al jugador.
  */
-export function registerPlayerDevice(playerName: string): Promise<string> {
+export function registerPlayerDevice(playerName: string): Promise<Record<string, string>> {
   return postRequest("/devices", { alias: playerName });
 }
 

@@ -1,6 +1,5 @@
-import GameContainer from "@/containers/GameContainer";
+import SessionContainer from "@/containers/SessionContainer";
 import { useFonts } from "expo-font";
-import { useEffect } from "react";
 import { ImageBackground, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
@@ -10,10 +9,6 @@ export default function Index() {
     Handodle: require("../assets/fonts/Handodle.ttf"),
   });
 
-  useEffect(() => {
-
-  }, []);
-
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -22,7 +17,7 @@ export default function Index() {
           style={styles.background}
           resizeMode="repeat"
         >
-          <GameContainer />
+          <SessionContainer/>
         </ImageBackground>
       </SafeAreaView>
     </SafeAreaProvider>

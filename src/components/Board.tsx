@@ -1,5 +1,5 @@
-import { Winner } from "@/containers/GameContainer";
 import { GridSquares } from "@/interfaces/Board";
+import { Winner } from "@/interfaces/Player";
 import { GlobalStyles } from "@/styles/GlobalStyles";
 import { generateEmptyGrid } from "@/utils/utils";
 import { StyleSheet, Text, View } from "react-native";
