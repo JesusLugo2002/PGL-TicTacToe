@@ -21,8 +21,12 @@ export default function SessionContainer() {
         setSession(sessionData);
     }
 
+    function logout() {
+        setSession(null);
+    }
+
     if (!session) {
         return <><SessionMenu setSession={setupSession}/></>
     }
-    return <GameContainer session={session}/>
+    return <GameContainer session={session} logout={logout}/>
 }

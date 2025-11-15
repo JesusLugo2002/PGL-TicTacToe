@@ -15,9 +15,10 @@ import BoardContainer from "./BoardContainer";
 
 type Props = {
     session: Session
+    logout: () => void
 }
 
-export default function GameContainer({ session }: Props) {
+export default function GameContainer({ session, logout }: Props) {
     const INITIAL_GAME_HISTORY: Record<PlayerSymbol, number> = {"X": 0, "O": 0};
 
     const [inGame, setInGame] = useState(false);
@@ -150,7 +151,10 @@ export default function GameContainer({ session }: Props) {
             {!inGame ? (
                 <View style={styles.container}>
                     <Menu startGame={handleStartGame}/>
-                    <Button description="Reset victories stats" onPress={() => resetGameHistory()}/>
+                    <View style={styles.bottomBar}>
+                        <Button description="Reset victories stats" onPress={() => resetGameHistory()}/>
+                        <Button description="Logout" onPress={() => logout()}/>
+                    </View>
                 </View>
             ) : (
                 <View style={styles.container}>
@@ -179,4 +183,10 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         paddingBottom: 10
     },
+    bottomBar: {
+        display: "flex",
+        flexDirection: "row",
+        width: "100%",
+        justifyContent: "space-evenly"
+    }
 })
