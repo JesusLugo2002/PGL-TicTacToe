@@ -1,12 +1,14 @@
 import SessionMenu from "@/components/SessionMenu";
 import { Session, SessionType } from "@/interfaces/Session";
 import { registerPlayerDevice } from "@/utils/ApiHandler";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { Text } from "react-native";
 import GameContainer from "./GameContainer";
+
 
 export default function SessionContainer() {
     const [session, setSession] = useState<Session|null>(null);
-
+    
     async function setupSession(sessionType: SessionType, playerName: string): Promise<void> {
         let deviceId = undefined;
         if (sessionType == SessionType.ONLINE) {
@@ -24,9 +26,11 @@ export default function SessionContainer() {
     function logout() {
         setSession(null);
     }
-
+    
     if (!session) {
-        return <><SessionMenu setSession={setupSession}/></>
+        return <Suspense fallback={<Text>Loading session menu...</Text>}>
+            <SessionMenu setSession={setupSession}/>
+        </Suspense>
     }
     return <GameContainer session={session} logout={logout}/>
 }
