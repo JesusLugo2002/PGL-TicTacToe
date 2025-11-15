@@ -3,6 +3,7 @@ import Button from "@/components/Button";
 import GameHistory from "@/components/GameHistory";
 import Menu from "@/components/Menu";
 import MoveHistory from "@/components/MoveHistory";
+import OnlineStats from "@/components/OnlineStats";
 import Title from "@/components/Title";
 import { GridSquares } from "@/interfaces/Board";
 import { PlayerSymbol, Winner } from "@/interfaces/Player";
@@ -18,7 +19,7 @@ type Props = {
     logout: () => void
 }
 
-export default function GameContainer({ session, logout }: Props) {
+export default async function GameContainer({ session, logout }: Props) {
     const INITIAL_GAME_HISTORY: Record<PlayerSymbol, number> = {"X": 0, "O": 0};
 
     const [inGame, setInGame] = useState(false);
@@ -144,10 +145,15 @@ export default function GameContainer({ session, logout }: Props) {
         return false;
     }
 
+
     return (
         <View style={styles.container}>
             <Title/>
-            <GameHistory history={gameHistory}/>
+            {session.deviceId ? (
+                <OnlineStats playerId={session.deviceId} playerName={session.playerName}/>
+                ) : (
+                <GameHistory history={gameHistory}/>
+            )}
             {!inGame ? (
                 <View style={styles.container}>
                     <Menu startGame={handleStartGame}/>

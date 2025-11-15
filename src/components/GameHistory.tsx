@@ -11,7 +11,7 @@ export default function GameHistory({history}: Props) {
     return (
     <View style={[styles.container]}>
         <Text style={GlobalStyles.font}>
-            <Text style={styles.scoreLabel}>{intInRoman(history.X)}</Text> - Player X</Text>
+        <Text style={styles.scoreLabel}>{intInRoman(history.X)}</Text> - Player X</Text>
         <Text style={GlobalStyles.font}>Victories</Text>
         <Text style={GlobalStyles.font}>
             Player O - <Text style={styles.scoreLabel}>{intInRoman(history.O)}</Text>
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     container: {
         marginBottom: 10,
         flexDirection: "row",
-        justifyContent: "space-between",
+        justifyContent: "space-evenly",
         width: "100%",
     },
     scoreLabel: {
