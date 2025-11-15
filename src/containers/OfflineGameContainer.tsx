@@ -3,16 +3,13 @@ import Button from "@/components/Button";
 import GameHistory from "@/components/GameHistory";
 import Menu from "@/components/Menu";
 import MoveHistory from "@/components/MoveHistory";
-import OnlineStats from "@/components/OnlineStats";
 import Title from "@/components/Title";
 import { GridSquares } from "@/interfaces/Board";
-import { PlayerMatchStatus, PlayerSymbol, Winner } from "@/interfaces/Player";
+import { PlayerSymbol, Winner } from "@/interfaces/Player";
 import { Session } from "@/interfaces/Session";
-import { GlobalStyles } from "@/styles/GlobalStyles";
-import { createMatch, getMatch, getPlayerStatus } from "@/utils/ApiHandler";
 import { getCombinationsLine } from "@/utils/GetWinnerUtils";
-import { Suspense, useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import BoardContainer from "./BoardContainer";
 
 type Props = {
@@ -20,7 +17,7 @@ type Props = {
     logout: () => void
 }
 
-export default function GameContainer({ session, logout }: Props) {
+export default function OfflineGameContainer({ session, logout }: Props) {
     const INITIAL_GAME_HISTORY: Record<PlayerSymbol, number> = {"X": 0, "O": 0};
 
     const [inGame, setInGame] = useState(false);
@@ -33,55 +30,6 @@ export default function GameContainer({ session, logout }: Props) {
     const [currentMove, setCurrentMove] = useState(0);
 
     let currentSquares: GridSquares = moveHistory[currentMove];
-
-    const [playerOnlineStatus, setPlayerOnlineStatus] = useState<PlayerMatchStatus|null>(null);
-
-    /**
-     * Polling para la busqueda de match. Cada segundo, (tiempo determinado en `TIME_IN_MS`),
-     * se obtiene el estado del jugador del servidor y, si se determina que hay un match
-     * para una partida con la configuracion deseada, se establece como estado actual. Solo se
-     * activa cuando el jugador esta en una lista de espera para partida.
-     */
-    function searchMatchPolling() {
-        const TIME_IN_MS = 1000;
-        if (!session.isOnline || playerOnlineStatus?.status != "waiting") {
-            return;
-        }
-        const searchMatchInterval = setInterval(async () => {
-            if (!session.deviceId) {
-                return;
-            }
-            const newPlayerStatus: PlayerMatchStatus = await getPlayerStatus(session.deviceId)
-            if (newPlayerStatus.status == "matched") {
-                setPlayerOnlineStatus(newPlayerStatus)
-            }
-        }, TIME_IN_MS);           
-        return () => clearInterval(searchMatchInterval) 
-    }
-
-    /**
-     * Polling que actualiza el tablero con el guardado en servidor. Cada 2 segundos, (tiempo
-     * determinado en `TIME_IN_MS`), se obtiene el estado del match y se actualiza el tablero con 
-     * el guardado en servidor.
-     */
-    function updateBoardPolling() {
-        const TIME_IN_MS = 2000;
-        if (!session.isOnline || !playerOnlineStatus?.match_id) {
-            return;
-        }
-        const updateBoardPolling = setInterval(async () => {
-            if (!playerOnlineStatus.match_id) {
-                return;
-            }
-            const match = await getMatch(playerOnlineStatus.match_id);
-        }, TIME_IN_MS);
-        return () => clearInterval(updateBoardPolling);
-    }
-
-    useEffect(() => {
-        searchMatchPolling()
-        updateBoardPolling()
-    }, [playerOnlineStatus?.status]);
 
     /**
      * Genera el valor inicial del MoveHistory (historial de movimientos)
@@ -128,12 +76,7 @@ export default function GameContainer({ session, logout }: Props) {
      * Gestiona el inicio de una partida configurando el tamaño del grid.
      * @param {number} boardCols numero de filas/columnas del grid.
      */
-    async function handleStartGame(boardCols: number): Promise<void> {
-        if (session.isOnline && session.deviceId) {
-            await createMatch(session.deviceId, boardCols);
-            const playerStatus = await getPlayerStatus(session.deviceId)
-            setPlayerOnlineStatus(playerStatus);
-        } 
+    function handleStartGame(boardCols: number): void {
         setBoardCols(boardCols);
         setInGame(true);
     }
@@ -193,53 +136,31 @@ export default function GameContainer({ session, logout }: Props) {
         return false;
     }
 
-    function showPlayerWaitingStatus() {
-        switch (playerOnlineStatus?.status) {
-            case "idle":
-                return <Text style={GlobalStyles.font}>Player is in Idle status</Text>
-            case "waiting":
-                return <Text style={GlobalStyles.font}>Player waiting for match...</Text>
-            case "matched":
-                return <Text style={GlobalStyles.font}>Match found.</Text>
-        }
-    }
-
     return (
         <View style={styles.container}>
             <Title/>
-            {session.deviceId ? (
-                <Suspense fallback={<Text>Loading stats...</Text>}>
-                    <OnlineStats playerId={session.deviceId} playerName={session.playerName}/>
-                </Suspense>
-                ) : (
-                <GameHistory history={gameHistory}/>
-            )}
+            <GameHistory history={gameHistory}/>
             <View style={styles.container}>
                 {!inGame ? (
-                    <Suspense fallback={<Text>Loading menu...</Text>}>
+                    <>
                         <Menu startGame={handleStartGame} />
                         <View style={styles.bottomBar}>
                             <Button description="Reset victories stats" onPress={() => resetGameHistory()} />
                             <Button description="Logout" onPress={() => logout()} />
-                        </View>
-                    </Suspense>                  
+                        </View>                     
+                    </>
                 ) : (
-                    session.isOnline ? (
-                        showPlayerWaitingStatus()
-                    ) : (
-                        <>
-                            <BoardContainer xIsNext={xIsNext}
-                                winner={winner}
-                                isTie={tie}
-                                checkWinner={checkWinner}
-                                squares={currentSquares}
-                                onPlay={handlePlay}
-                                giveVictory={giveVictory}
-                                boardCols={boardCols} />
-                            <Actions onReset={resetGame} />
-                            <MoveHistory history={moveHistory} jumpTo={jumpToMove} />
-                        </>
-                    )
+                    <>
+                        <BoardContainer xIsNext={xIsNext}
+                            winner={winner}
+                            isTie={tie}
+                            checkWinner={checkWinner}
+                            squares={currentSquares}
+                            onPlay={handlePlay}
+                            boardCols={boardCols} />
+                        <Actions onReset={resetGame} />
+                        <MoveHistory history={moveHistory} jumpTo={jumpToMove} />
+                    </>  
                 )}
             </View>
         </View>

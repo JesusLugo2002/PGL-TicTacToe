@@ -8,13 +8,12 @@ type Props = {
     winner: Winner|null
     isTie: boolean
     checkWinner: (nextSquares: GridSquares) => boolean
-    onPlay: (nextSquares: GridSquares) => void
-    giveVictory: (symbol: PlayerSymbol) => void
+    onPlay?: (nextSquares: GridSquares) => void
+    onRemotePlay?: (index: number) => void
     boardCols: number
 }
 
-export default function BoardContainer({xIsNext, squares, winner, isTie, checkWinner, onPlay, boardCols}: Props) {
-    
+export default function BoardContainer({xIsNext, squares, winner, isTie, checkWinner, onPlay, onRemotePlay, boardCols}: Props) {
     /**
      * Devuelve el `PlayerSymbol` equivalente al jugador actual.
      * @returns {PlayerSymbol}
@@ -37,7 +36,11 @@ export default function BoardContainer({xIsNext, squares, winner, isTie, checkWi
         }
         const nextSquares = squares.slice();
         nextSquares[index] = getNextPlayer();
-        onPlay(nextSquares);
+        if (onPlay) {
+            onPlay(nextSquares);
+        } else if (onRemotePlay) {
+            onRemotePlay(index)
+        }
         checkWinner(nextSquares);
     }
     

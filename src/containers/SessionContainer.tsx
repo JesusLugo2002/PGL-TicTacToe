@@ -3,7 +3,8 @@ import { Session, SessionType } from "@/interfaces/Session";
 import { registerPlayerDevice } from "@/utils/ApiHandler";
 import { Suspense, useState } from "react";
 import { Text } from "react-native";
-import GameContainer from "./GameContainer";
+import OfflineGameContainer from "./OfflineGameContainer";
+import OnlineGameContainer from "./OnlineGameContainer";
 
 
 export default function SessionContainer() {
@@ -32,8 +33,10 @@ export default function SessionContainer() {
             <SessionMenu setSession={setupSession}/>
         </Suspense>
     }
-    return <Suspense>
-        <GameContainer session={session} logout={logout}/>
-    </Suspense>
-    
+    if (session.isOnline) {
+        return <Suspense>
+            <OnlineGameContainer session={session} logout={logout}/>
+        </Suspense>
+    }
+    return <OfflineGameContainer session={session} logout={logout}/>
 }
