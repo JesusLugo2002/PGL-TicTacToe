@@ -11,7 +11,7 @@ type Props = {
     winner: Winner|null
     nextPlayer: string
     boardCols: number
-    isTie: boolean
+    isTie?: boolean
 }
 
 type BorderStyle = {

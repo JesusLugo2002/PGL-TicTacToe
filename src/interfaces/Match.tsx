@@ -1,7 +1,7 @@
 import { GridSquares } from "./Board"
 import { PlayerSymbol } from "./Player"
 
-type PlayersMap = Record<PlayerSymbol, string>
+type PlayersMap = Record<string, PlayerSymbol>
 
 export type Match = {
     match_id: string

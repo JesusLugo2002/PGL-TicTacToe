@@ -11,7 +11,7 @@ import { createMatch, getMatch, getPlayerStatus, makeMove } from "@/utils/ApiHan
 import { getCombinationsLine } from "@/utils/GetWinnerUtils";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import BoardContainer from "./BoardContainer";
+import OnlineBoardContainer from "./OnlineBoardContainer";
 
 type Props = {
     session: Session
@@ -126,15 +126,6 @@ export default function OnlineGameContainer({ session, logout }: Props) {
         setCurrentMatch(newMatch)
     }
 
-    function updateBoardContainer() {
-        if (!matchData || !currentMatch) {
-            return;
-        }
-        const xIsNext = matchData.players[currentMatch.next_turn] == "X";
-        const squares = currentMatch.board;
-        return <BoardContainer xIsNext={xIsNext} squares={squares} boardCols={boardCols} winner={winner} isTie={tie} checkWinner={checkWinner} onRemotePlay={handlePlay}  />
-    }
-
     /**
      * Comprueba si el juego ha sido ganado mirando las combinaciones posibles y chequeando
      * que se cumpla alguna, otorgando la victoria al jugador que lo logre.
@@ -176,8 +167,8 @@ export default function OnlineGameContainer({ session, logout }: Props) {
                         </View>                     
                     </>
                 ) : (
-                    playerOnlineStatus?.match_id ? (
-                        updateBoardContainer()
+                    currentMatch && matchData ? (
+                        <OnlineBoardContainer currentStatus={currentMatch} boardCols={boardCols} match={matchData} session={session}/>
                     ) : (
                         showPlayerWaitingStatus()
                     )
