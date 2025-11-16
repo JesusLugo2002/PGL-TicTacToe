@@ -110,7 +110,7 @@ export function makeMove(
   xPos: number,
   yPos: number
 ): Promise<MatchCallback> {
-  return postRequest(`/matches/${matchId}`, {
+  return postRequest(`/matches/${matchId}/moves`, {
     device_id: playerId,
     x: xPos,
     y: yPos,

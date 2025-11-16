@@ -2,13 +2,11 @@ import Button from "@/components/Button";
 import Menu from "@/components/Menu";
 import OnlineStats from "@/components/OnlineStats";
 import Title from "@/components/Title";
-import { GridSquares } from "@/interfaces/Board";
 import { MatchCallback, MatchStatus } from "@/interfaces/Match";
-import { PlayerMatchStatus, PlayerSymbol, Winner } from "@/interfaces/Player";
+import { PlayerMatchStatus } from "@/interfaces/Player";
 import { Session } from "@/interfaces/Session";
 import { GlobalStyles } from "@/styles/GlobalStyles";
 import { createMatch, getMatch, getPlayerStatus, makeMove } from "@/utils/ApiHandler";
-import { getCombinationsLine } from "@/utils/GetWinnerUtils";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import OnlineBoardContainer from "./OnlineBoardContainer";
@@ -24,8 +22,6 @@ export default function OnlineGameContainer({ session, logout }: Props) {
     const [playerOnlineStatus, setPlayerOnlineStatus] = useState<PlayerMatchStatus|null>(null);
     const [matchData, setMatchData] = useState<MatchStatus|null>(null)
     const [currentMatch, setCurrentMatch] = useState<MatchCallback|null>(null)
-    const [winner, setWinner] = useState<Winner|null>(null);
-    const [tie, setTie] = useState(false);
 
 
     /**
@@ -105,7 +101,7 @@ export default function OnlineGameContainer({ session, logout }: Props) {
             case "waiting":
                 return <Text style={GlobalStyles.font}>Player waiting for match...</Text>
             case "matched":
-                return <Text style={GlobalStyles.font}>Match found.</Text>
+                return <Text style={GlobalStyles.font}>Match found. Loading game...</Text>
             default:
                 return <></>
         }
@@ -125,34 +121,6 @@ export default function OnlineGameContainer({ session, logout }: Props) {
         const newMatch = await makeMove(playerOnlineStatus?.match_id, session.deviceId, coordinates.x, coordinates.y)
         setCurrentMatch(newMatch)
     }
-
-    /**
-     * Comprueba si el juego ha sido ganado mirando las combinaciones posibles y chequeando
-     * que se cumpla alguna, otorgando la victoria al jugador que lo logre.
-     * @param {GridSquares} nextSquares el grid actual para comprobar.
-     * @returns {boolean} `true` si se ha encontrado un ganador, `false` si no o si hay empate.
-     */
-    function checkWinner(nextSquares: GridSquares): boolean {
-        const lines = getCombinationsLine(boardCols);
-        for (let i = 0; i < lines.length; i++) {
-            const currentLine = lines[i];
-            const firstLineIndex = currentLine[0];
-            const firstSym = nextSquares[firstLineIndex];
-            if (!firstSym) {
-                continue;
-            }
-            const matches = currentLine.map((index: number) => {
-                return nextSquares[index] === firstSym;
-            })
-            if (matches.every((match: boolean) => match)) {
-                setWinner({symbol: firstSym as PlayerSymbol, line: currentLine});
-                return true;
-            }
-        }
-        setTie(nextSquares.every(value => value != null));
-        setWinner(null);
-        return false;
-    }
     
     return (
         <View style={styles.container}>
@@ -167,8 +135,8 @@ export default function OnlineGameContainer({ session, logout }: Props) {
                         </View>                     
                     </>
                 ) : (
-                    currentMatch && matchData ? (
-                        <OnlineBoardContainer currentStatus={currentMatch} boardCols={boardCols} match={matchData} session={session}/>
+                    currentMatch ? (
+                        <OnlineBoardContainer currentStatus={currentMatch} boardCols={boardCols} session={session} handleClick={handlePlay}/>
                     ) : (
                         showPlayerWaitingStatus()
                     )

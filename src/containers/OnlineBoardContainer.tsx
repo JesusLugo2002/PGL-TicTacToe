@@ -1,18 +1,20 @@
 import Board from "@/components/Board";
-import { MatchCallback, MatchStatus } from "@/interfaces/Match";
+import { MatchCallback } from "@/interfaces/Match";
 import { PlayerSymbol, Winner } from "@/interfaces/Player";
 import { Session } from "@/interfaces/Session";
 
 type Props = {
-    match: MatchStatus
     currentStatus: MatchCallback
     boardCols: number
     session: Session
+    handleClick: (index: number) => void
 }
 
-export default function OnlineBoardContainer({match, currentStatus, boardCols, session}: Props) {
-    function handleClick() {
-        alert("Haz elegido un cuadro")
+export default function OnlineBoardContainer({currentStatus, boardCols, session, handleClick}: Props) {
+    console.log(currentStatus)
+
+    function isMyTurn(): boolean {
+        return session.deviceId == currentStatus.next_turn
     }
 
     function getWinner(): Winner|null {
@@ -22,9 +24,16 @@ export default function OnlineBoardContainer({match, currentStatus, boardCols, s
         return null;
     }
 
-    function getTurnLabel() {
-        return session.deviceId == currentStatus.next_turn ? "your" : "the opponent";
+    function handlePlay(index: number) {
+        if (!isMyTurn()) {
+            return;
+        }
+        handleClick(index);
     }
 
-    return <Board squares={currentStatus.board} onHandleClick={handleClick} winner={getWinner()} nextPlayer={getTurnLabel()} boardCols={boardCols}/>
+    function getTurnLabel() {
+        return isMyTurn() ? "your" : "the opponent";
+    }
+
+    return <Board squares={currentStatus.board} onHandleClick={handlePlay} winner={getWinner()} nextPlayer={getTurnLabel()} boardCols={boardCols}/>
 }
