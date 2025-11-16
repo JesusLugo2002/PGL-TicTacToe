@@ -39,7 +39,11 @@ export default function OnlineBoardContainer({currentStatus, boardCols, session,
     }
 
     function handlePlay(index: number) {
-        if (!isMyTurn() || getWinner() || getSquares()[index] ) {
+        if (!isMyTurn()) {
+            alert("You can't play, is not your turn!")
+            return;
+        }
+        if (getWinner() || getSquares()[index] ) {
             return;
         }
         handleClick(index);
@@ -57,5 +61,9 @@ export default function OnlineBoardContainer({currentStatus, boardCols, session,
         return result.flat();
     }
 
-    return <Board squares={getSquares()} onHandleClick={handlePlay} winner={getWinner()} nextPlayer={getTurnLabel()} boardCols={boardCols}/>
+    function isTie() {
+        return getWinner() == null && getSquares().every((square: string) => square != "");
+    }
+
+    return <Board squares={getSquares()} onHandleClick={handlePlay} winner={getWinner()} nextPlayer={getTurnLabel()} boardCols={boardCols} isTie={isTie()}/>
 }

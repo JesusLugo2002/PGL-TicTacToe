@@ -30,9 +30,9 @@ export default function OnlineGameContainer({ session, logout }: Props) {
             return;
         } 
         getPlayer(session.deviceId).then((playerStats) => setStats(playerStats));
-    }, [])
+    }, [inGame])
 
-    /**
+    /**a
      * Polling para la busqueda de match. Cada segundo, (tiempo determinado en `TIME_IN_MS`),
      * se obtiene el estado del jugador del servidor y, si se determina que hay un match
      * para una partida con la configuracion deseada, se establece como estado actual. Solo se
