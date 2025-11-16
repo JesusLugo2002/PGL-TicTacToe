@@ -3,10 +3,10 @@ import Menu from "@/components/Menu";
 import OnlineStats from "@/components/OnlineStats";
 import Title from "@/components/Title";
 import { MatchCallback, MatchStatus } from "@/interfaces/Match";
-import { PlayerMatchStatus } from "@/interfaces/Player";
+import { PlayerMatchStatus, PlayerStats } from "@/interfaces/Player";
 import { Session } from "@/interfaces/Session";
 import { GlobalStyles } from "@/styles/GlobalStyles";
-import { createMatch, getMatch, getPlayerStatus, makeMove } from "@/utils/ApiHandler";
+import { createMatch, getMatch, getPlayer, getPlayerStatus, makeMove } from "@/utils/ApiHandler";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import OnlineBoardContainer from "./OnlineBoardContainer";
@@ -22,7 +22,15 @@ export default function OnlineGameContainer({ session, logout }: Props) {
     const [playerOnlineStatus, setPlayerOnlineStatus] = useState<PlayerMatchStatus|null>(null);
     const [matchData, setMatchData] = useState<MatchStatus|null>(null)
     const [currentMatch, setCurrentMatch] = useState<MatchCallback|null>(null)
+    
+    const [stats, setStats] = useState<PlayerStats|null>(null);
 
+    useEffect(() => {
+        if (!session.deviceId) {
+            return;
+        } 
+        getPlayer(session.deviceId).then((playerStats) => setStats(playerStats));
+    }, [])
 
     /**
      * Polling para la busqueda de match. Cada segundo, (tiempo determinado en `TIME_IN_MS`),
@@ -57,7 +65,7 @@ export default function OnlineGameContainer({ session, logout }: Props) {
      * el guardado en servidor.
      */
     function updateBoardPolling() {
-        const TIME_IN_MS = 2000;
+        const TIME_IN_MS = 1000;
         if (!session.isOnline || !playerOnlineStatus?.match_id) {
             return;
         }
@@ -121,11 +129,18 @@ export default function OnlineGameContainer({ session, logout }: Props) {
         const newMatch = await makeMove(playerOnlineStatus?.match_id, session.deviceId, coordinates.x, coordinates.y)
         setCurrentMatch(newMatch)
     }
-    
+
+    function leaveGame() {
+        setInGame(false);
+        setPlayerOnlineStatus(null);
+        setMatchData(null);
+        setCurrentMatch(null)
+    }   
+
     return (
         <View style={styles.container}>
             <Title/>
-            <OnlineStats session={session}/>
+            <OnlineStats session={session} stats={stats}/>
             <View style={styles.container}>
                 {!inGame ? (
                     <>
@@ -136,7 +151,10 @@ export default function OnlineGameContainer({ session, logout }: Props) {
                     </>
                 ) : (
                     currentMatch ? (
+                        <>
                         <OnlineBoardContainer currentStatus={currentMatch} boardCols={boardCols} session={session} handleClick={handlePlay}/>
+                        <Button description="Leave game" onPress={() => leaveGame()}/>
+                        </>
                     ) : (
                         showPlayerWaitingStatus()
                     )

@@ -18,7 +18,7 @@ export type MatchStatus = {
 }
 
 export type MatchCallback = {
-    board: GridSquares
+    board: any
     next_turn: PlayerSymbol
     winner: string
 }

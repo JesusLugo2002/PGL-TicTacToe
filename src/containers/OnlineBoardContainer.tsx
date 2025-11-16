@@ -2,6 +2,7 @@ import Board from "@/components/Board";
 import { MatchCallback } from "@/interfaces/Match";
 import { PlayerSymbol, Winner } from "@/interfaces/Player";
 import { Session } from "@/interfaces/Session";
+import { getCombinationsLine } from "@/utils/GetWinnerUtils";
 
 type Props = {
     currentStatus: MatchCallback
@@ -11,21 +12,34 @@ type Props = {
 }
 
 export default function OnlineBoardContainer({currentStatus, boardCols, session, handleClick}: Props) {
-    console.log(currentStatus)
-
     function isMyTurn(): boolean {
         return session.deviceId == currentStatus.next_turn
     }
 
     function getWinner(): Winner|null {
+        const squares = getSquares()
         if (currentStatus.winner) {
-            return { symbol: currentStatus.winner as PlayerSymbol, line: [] }
+            const lines = getCombinationsLine(boardCols);
+            for (let i = 0; i < lines.length; i++) {
+                const currentLine = lines[i];
+                const firstLineIndex = currentLine[0];
+                const firstSym = squares[firstLineIndex];
+                if (!firstSym) {
+                    continue;
+                }
+                const matches = currentLine.map((index: number) => {
+                    return squares[index] === firstSym;
+                })
+                if (matches.every((match: boolean) => match)) {
+                    return { symbol: currentStatus.winner as PlayerSymbol, line: currentLine }
+                }
+            }
         }
         return null;
     }
 
     function handlePlay(index: number) {
-        if (!isMyTurn()) {
+        if (!isMyTurn() || getWinner() || getSquares()[index] ) {
             return;
         }
         handleClick(index);
@@ -35,5 +49,13 @@ export default function OnlineBoardContainer({currentStatus, boardCols, session,
         return isMyTurn() ? "your" : "the opponent";
     }
 
-    return <Board squares={currentStatus.board} onHandleClick={handlePlay} winner={getWinner()} nextPlayer={getTurnLabel()} boardCols={boardCols}/>
+    function getSquares() {
+        const grid = currentStatus.board;
+        const result = grid[0].map((_: any, colIndex: number) => {
+            return grid.map((row: any) => {return row[colIndex]})
+        })
+        return result.flat();
+    }
+
+    return <Board squares={getSquares()} onHandleClick={handlePlay} winner={getWinner()} nextPlayer={getTurnLabel()} boardCols={boardCols}/>
 }

@@ -27,7 +27,6 @@ type SquareObject = {
 }
 
 export default function Board({squares, onHandleClick, winner, nextPlayer, boardCols, isTie}: Props) {
-
     /**
      * Genera un `BorderStyle` dependiendo de los bordes que se desean dibujar.
      * @param {boolean} top borde superior.
